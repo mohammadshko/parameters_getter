@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Parameters Wizard - ConfigFlow{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-2xl">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+
+        <!-- Progress Bar and Steps Header -->
+        <div class="bg-slate-50 border-b border-slate-150 px-6 py-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600" id="progress-text">Step 1 of 5</span>
+                <span class="text-xs font-semibold text-slate-500" id="progress-percent">20% Complete</span>
+            </div>
+            <!-- Progress Line Container -->
+            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-indigo-600 h-full transition-all duration-300 ease-out" style="width: 20%;"></div>
+            </div>
+        </div>
+
+        <form id="wizard-form" action="/submit" method="post" class="p-6 sm:p-10">
+            <!-- Dynamic steps content container -->
+            <div class="space-y-6">
+
+                {% for key, val in config.items() %}
+                <!-- Step Card (starts hidden except first one) -->
+                <div class="wizard-step {% if not loop.first %}hidden{% endif %}" data-step-index="{{ loop.index0 }}" data-key="{{ key }}">
+
+                    <div class="mb-6">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mb-3">
+                            Parameter {{ loop.index }} of {{ config|length }}
+                        </span>
+                        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">{{ key }}</h2>
+                        <p class="text-sm text-slate-500 mt-1">Please enter the correct configuration value for <strong>{{ key }}</strong>.</p>
+                    </div>
+
+                    <!-- Single Input Field -->
+                    <div class="space-y-2">
+                        <label for="input-{{ loop.index0 }}" class="block text-sm font-semibold text-slate-700">Value</label>
+                        <div class="relative rounded-lg shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </div>
+                            <input type="text" name="{{ key }}" id="input-{{ loop.index0 }}" value="{{ val }}" required
+                                class="block w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder-slate-400 text-sm transition-all duration-200">
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <!-- Footer Action Buttons -->
+            <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+                <!-- Back Button -->
+                <button type="button" id="back-btn" disabled
+                    class="inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                    <span>Back</span>
+                </button>
+
+                <!-- Next Button -->
+                <button type="button" id="next-btn"
+                    class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-all duration-200">
+                    <span>Forward</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+
+                <!-- Submit Button (Hidden on start) -->
+                <button type="submit" id="submit-btn" class="hidden inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 transition-all duration-200">
+                    <span>Submit</span>
+                    <i class="fa-solid fa-cloud-arrow-up ml-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const steps = document.querySelectorAll(".wizard-step");
+        const totalSteps = steps.length;
+        let currentStepIndex = 0;
+
+        const backBtn = document.getElementById("back-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const submitBtn = document.getElementById("submit-btn");
+        const progressBar = document.getElementById("progress-bar");
+        const progressText = document.getElementById("progress-text");
+        const progressPercent = document.getElementById("progress-percent");
+
+        function updateStep() {
+            // Show/hide correct step view
+            steps.forEach((step, idx) => {
+                if (idx === currentStepIndex) {
+                    step.classList.remove("hidden");
+                } else {
+                    step.classList.add("hidden");
+                }
+            });
+
+            // Update Progress bar & steps labels
+            const stepNum = currentStepIndex + 1;
+            const percentage = Math.round((stepNum / totalSteps) * 100);
+
+            progressText.innerText = `Step ${stepNum} of ${totalSteps}`;
+            progressPercent.innerText = `${percentage}% Complete`;
+            progressBar.style.width = `${percentage}%`;
+
+            // Back button control
+            if (currentStepIndex === 0) {
+                backBtn.disabled = true;
+            } else {
+                backBtn.disabled = false;
+            }
+
+            // Next vs Submit buttons controls
+            if (currentStepIndex === totalSteps - 1) {
+                nextBtn.classList.add("hidden");
+                submitBtn.classList.remove("hidden");
+            } else {
+                nextBtn.classList.remove("hidden");
+                submitBtn.classList.add("hidden");
+            }
+        }
+
+        nextBtn.addEventListener("click", function () {
+            // Validate input before advancing
+            const currentStep = steps[currentStepIndex];
+            const input = currentStep.querySelector("input");
+            if (!input.checkValidity()) {
+                input.reportValidity();
+                return;
+            }
+
+            if (currentStepIndex < totalSteps - 1) {
+                currentStepIndex++;
+                updateStep();
+            }
+        });
+
+        backBtn.addEventListener("click", function () {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                updateStep();
+            }
+        });
+
+        // Initialize state
+        updateStep();
+    });
+</script>
+{% endblock %}

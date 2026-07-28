@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Login - ConfigFlow{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-md">
+    <!-- Card Wrapper -->
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+
+        <!-- Top branding accent -->
+        <div class="h-2 bg-gradient-to-r from-indigo-500 to-violet-600"></div>
+
+        <div class="p-8 sm:p-10">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Welcome Back</h1>
+                <p class="text-slate-500 mt-2 text-sm">Please log in to manage your configuration parameters.</p>
+            </div>
+
+            <!-- Error Banner -->
+            {% if error %}
+            <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl flex items-start space-x-3 text-red-700 animate-pulse">
+                <i class="fa-solid fa-triangle-exclamation mt-0.5 text-lg"></i>
+                <div class="text-sm font-medium">{{ error }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Form -->
+            <form action="/login" method="post" class="space-y-6">
+                <!-- Username -->
+                <div>
+                    <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">Username</label>
+                    <div class="relative rounded-lg shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <input type="text" name="username" id="username" required
+                            class="block w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder-slate-400 text-sm transition-all duration-200"
+                            placeholder="admin" value="admin">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+                    <div class="relative rounded-lg shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <input type="password" name="password" id="password" required
+                            class="block w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder-slate-400 text-sm transition-all duration-200"
+                            placeholder="••••••••" value="admin">
+                    </div>
+                </div>
+
+                <!-- Helper tip -->
+                <div class="text-xs text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg flex items-center space-x-2">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Use <strong>admin</strong> / <strong>admin</strong> to log in.</span>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit"
+                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                        <span>Sign In</span>
+                        <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
