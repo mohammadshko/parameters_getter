@@ -6,6 +6,29 @@
 <div class="w-full max-w-2xl">
     <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
 
+        <!-- Active Customer Header banner if selected -->
+        {% if active_customer %}
+        <div class="bg-indigo-50 border-b border-indigo-100 px-6 py-3.5 flex items-center justify-between text-indigo-800">
+            <div class="flex items-center space-x-2 text-sm font-semibold">
+                <i class="fa-solid fa-clipboard-user text-indigo-500"></i>
+                <span>Configuring service for: <strong class="text-indigo-900">{{ active_customer.name }}</strong></span>
+            </div>
+            <span class="text-xs bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                Services so far: {{ active_customer.services|length }}
+            </span>
+        </div>
+        {% else %}
+        <div class="bg-amber-50 border-b border-amber-100 px-6 py-3.5 flex items-center justify-between text-amber-800">
+            <div class="flex items-center space-x-2 text-sm font-semibold">
+                <i class="fa-solid fa-user-slash text-amber-500"></i>
+                <span>Direct Configuration Mode (No Customer selected)</span>
+            </div>
+            <a href="/dashboard" class="text-xs text-amber-900 hover:underline font-bold">
+                Assign a Customer
+            </a>
+        </div>
+        {% endif %}
+
         <!-- Progress Bar and Steps Header -->
         <div class="bg-slate-50 border-b border-slate-150 px-6 py-4">
             <div class="flex items-center justify-between mb-2">
