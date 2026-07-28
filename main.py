@@ -1,7 +1,5 @@
-import os
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
+from fastapi import FastAPI, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -25,12 +23,14 @@ current_config = DEFAULT_CONFIG.copy()
 # Templates configuration
 templates = Jinja2Templates(directory="templates")
 
+
 # Dependency to check authentication
 def get_current_user(request: Request):
     user = request.session.get("user")
     if not user:
         return None
     return user
+
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -39,12 +39,18 @@ async def home(request: Request):
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     return RedirectResponse(url="/parameters", status_code=status.HTTP_303_SEE_OTHER)
 
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_get(request: Request):
     user = get_current_user(request)
     if user:
         return RedirectResponse(url="/parameters", status_code=status.HTTP_303_SEE_OTHER)
-    return templates.TemplateResponse(request=request, name="login.html", context={"error": None})
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={"error": None},
+    )
+
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
@@ -59,10 +65,12 @@ async def login_post(request: Request, username: str = Form(...), password: str 
         context={"error": "Invalid username or password. Please try admin/admin."}
     )
 
+
 @app.get("/logout")
 async def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
 
 @app.get("/parameters", response_class=HTMLResponse)
 async def parameters_get(request: Request):
@@ -73,8 +81,9 @@ async def parameters_get(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="parameters.html",
-        context={"config": current_config, "user": user}
+        context={"request": request, "config": current_config, "user": user}
     )
+
 
 @app.post("/submit", response_class=HTMLResponse)
 async def parameters_post(request: Request):
@@ -92,5 +101,5 @@ async def parameters_post(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="success.html",
-        context={"config": current_config, "user": user}
+        context={"request": request, "config": current_config, "user": user}
     )
