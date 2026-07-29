@@ -4,121 +4,110 @@ from playwright.async_api import async_playwright
 
 async def run_verification():
     async with async_playwright() as p:
-        # Launch browser headless or headful (headless for testing)
+        # Launch browser
         browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(viewport={"width": 1280, "height": 800})
+        # Create context with video recording
+        context = await browser.new_context(
+            viewport={"width": 1280, "height": 800},
+            record_video_dir="/home/jules/verification/videos"
+        )
         page = await context.new_page()
 
         print("Navigating to home page, redirecting to login...")
         await page.goto("http://127.0.0.1:8000/")
-        await asyncio.sleep(1)
-        await page.screenshot(path="screenshot_01_login_page.png")
+        await asyncio.sleep(0.5)
 
         print("Filling login details...")
         await page.fill("input[name='username']", "admin")
         await page.fill("input[name='password']", "admin")
-        await page.screenshot(path="screenshot_02_login_filled.png")
-
-        print("Clicking login...")
         await page.click("button[type='submit']")
-        await asyncio.sleep(1)
-        # We are now on the dashboard
-        await page.screenshot(path="screenshot_03_dashboard.png")
+        await asyncio.sleep(0.8)
 
-        print("Clicking 'Customer Info' button...")
-        await page.click("a[id='btn-customer-info']")
-        await asyncio.sleep(0.5)
-        await page.screenshot(path="screenshot_04_new_customer_page.png")
-
-        print("Filling customer details...")
-        await page.fill("input[name='name']", "Apex Systems LLC")
-        await page.fill("input[name='email']", "contact@apexsystems.com")
-        await page.click("button[id='btn-save-customer']")
-        await asyncio.sleep(1)
-        # Redirected back to dashboard with Apex Systems LLC as active
-        await page.screenshot(path="screenshot_05_dashboard_with_customer.png")
-
-        print("Clicking 'Already Form' wizard button...")
-        await page.click("a[id='btn-already-form']")
-        await asyncio.sleep(0.5)
-        await page.screenshot(path="screenshot_06_wizard1_step1.png")
-
-        # Step through wizard - 1st Service configuration
-        print("Editing Database Host (Service 1) and pressing Forward...")
-        await page.fill("input[id='input-0']", "apex-db-primary.internal")
+        # Now directly on the consolidated parameters wizard page
+        print("Step 1: Filling customer info...")
+        await page.fill("input[name='customer_name']", "Acme Corporation")
+        await page.fill("input[name='customer_email']", "info@acme.com")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.5)
 
-        print("Editing Database Port (Service 1) and pressing Forward...")
+        print("Step 2: Entering Database Host...")
+        await page.fill("input[id='input-0']", "acme-db-primary.internal")
+        await page.click("button[id='next-btn']")
+        await asyncio.sleep(0.5)
+
+        print("Step 3: Entering Database Port...")
         await page.fill("input[id='input-1']", "5432")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.5)
 
-        print("Editing API Key (Service 1) and pressing Forward...")
-        await page.fill("input[id='input-2']", "apex-api-secret-abc")
+        print("Step 4: Entering API Key...")
+        await page.fill("input[id='input-2']", "acme-api-secret-key-xyz")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.5)
 
-        print("Editing Max Retries (Service 1) and pressing Forward...")
-        await page.fill("input[id='input-3']", "3")
-        await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.3)
-
-        print("Editing Timeout (Service 1) and pressing Submit...")
-        await page.fill("input[id='input-4']", "15")
-        await page.screenshot(path="screenshot_07_wizard1_step5.png")
-        await page.click("button[id='submit-btn']")
-        await asyncio.sleep(1)
-        # Now on Success page for first service
-        await page.screenshot(path="screenshot_08_success_first_service.png")
-
-        # Fill form twice: Configure Another Service
-        print("Clicking 'Configure Another Service' to fill form twice...")
-        await page.click("a[id='btn-configure-another']")
-        await asyncio.sleep(1)
-        await page.screenshot(path="screenshot_09_wizard2_step1.png")
-
-        # Step through wizard - 2nd Service configuration
-        print("Editing Database Host (Service 2) and pressing Forward...")
-        await page.fill("input[id='input-0']", "apex-db-replica.internal")
-        await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.3)
-
-        print("Editing Database Port (Service 2) and pressing Forward...")
-        await page.fill("input[id='input-1']", "5433")
-        await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.3)
-
-        print("Editing API Key (Service 2) and pressing Forward...")
-        await page.fill("input[id='input-2']", "apex-api-replica-xyz")
-        await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.3)
-
-        print("Editing Max Retries (Service 2) and pressing Forward...")
+        print("Step 5: Entering Max Retries...")
         await page.fill("input[id='input-3']", "5")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.5)
 
-        print("Editing Timeout (Service 2) and pressing Submit...")
+        print("Step 6: Entering Timeout and Submitting...")
         await page.fill("input[id='input-4']", "30")
-        await page.screenshot(path="screenshot_10_wizard2_step5.png")
         await page.click("button[id='submit-btn']")
-        await asyncio.sleep(1)
-        # Success page showing BOTH services configured!
-        await page.screenshot(path="screenshot_11_success_both_services.png")
+        await asyncio.sleep(1.0)
 
-        print("Going back to dashboard...")
-        await page.click("a[id='btn-go-dashboard']")
-        await asyncio.sleep(1)
-        await page.screenshot(path="screenshot_12_dashboard_completed.png")
+        # Arrive on Success page
+        print("Success page reached. Verification screenshot 1...")
+        await page.screenshot(path="/home/jules/verification/screenshots/verification_submit1.png")
 
-        print("Testing logout...")
-        await page.click("a[href='/logout']")
-        await asyncio.sleep(1)
-        await page.screenshot(path="screenshot_13_after_logout.png")
+        print("Clicking Configure Another Service to test prefill option...")
+        await page.click("a[id='btn-configure-another']")
+        await asyncio.sleep(0.8)
 
-        print("Pristine customer and multi-service wizard verification flow completed!")
+        # Checking if Prefill Banner is visible and clicking it
+        prefill_banner = page.locator("div[id='prefill-banner']")
+        if await prefill_banner.is_visible():
+            print("Prefill banner is visible! Clicking prefill button...")
+            await page.click("button[id='btn-prefill']")
+            await asyncio.sleep(0.5)
+        else:
+            print("Error: Prefill banner not visible!")
+
+        await page.click("button[id='next-btn']")
+        await asyncio.sleep(0.5)
+
+        print("Step 2 (Service 2): Database Host...")
+        await page.fill("input[id='input-0']", "acme-db-replica.internal")
+        await page.click("button[id='next-btn']")
+        await asyncio.sleep(0.5)
+
+        print("Step 3 (Service 2): Database Port...")
+        await page.fill("input[id='input-1']", "5433")
+        await page.click("button[id='next-btn']")
+        await asyncio.sleep(0.5)
+
+        print("Step 4 (Service 2): API Key...")
+        await page.fill("input[id='input-2']", "acme-api-replica-key-abc")
+        await page.click("button[id='next-btn']")
+        await asyncio.sleep(0.5)
+
+        print("Step 5 (Service 2): Max Retries...")
+        await page.fill("input[id='input-3']", "10")
+        await page.click("button[id='next-btn']")
+        await asyncio.sleep(0.5)
+
+        print("Step 6 (Service 2): Timeout and Submitting...")
+        await page.fill("input[id='input-4']", "60")
+        await page.click("button[id='submit-btn']")
+        await asyncio.sleep(1.0)
+
+        # Save final screen
+        print("Success page 2 reached. Saving final screenshot...")
+        await page.screenshot(path="/home/jules/verification/screenshots/verification.png")
+        await asyncio.sleep(1.0)
+
+        await context.close()
         await browser.close()
+        print("Consolidated wizard verification completed perfectly!")
 
 if __name__ == "__main__":
     asyncio.run(run_verification())

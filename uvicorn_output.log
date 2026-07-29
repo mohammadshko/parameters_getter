@@ -1,30 +1,11 @@
-INFO:     Started server process [113604]
+INFO:     Started server process [151929]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:47496 - "GET / HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:47496 - "GET /login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "POST /login HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:47496 - "GET /dashboard HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "GET /customer/new HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "POST /customer/new HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:47496 - "GET /dashboard HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "GET /dashboard HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47496 - "GET /logout HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:47496 - "GET /login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "GET / HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:35602 - "GET /login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "POST /login HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:35602 - "GET /dashboard HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "GET /customer/new HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "POST /customer/new HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:35602 - "GET /dashboard HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35602 - "GET /dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47294 - "GET / HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:47294 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47294 - "POST /login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:47294 - "GET /parameters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47294 - "POST /submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47294 - "GET /parameters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47294 - "POST /submit HTTP/1.1" 200 OK
