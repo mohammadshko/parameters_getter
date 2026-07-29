@@ -23,10 +23,13 @@ async def run_verification():
         await page.click("button[type='submit']")
         await asyncio.sleep(0.8)
 
-        # Now directly on the consolidated parameters wizard page
-        print("Step 1: Filling customer info...")
+        # Now directly on the consolidated parameters wizard page in English
+        print("Step 1 (EN): Filling customer info...")
+        await page.fill("input[name='customer_date']", "2025-07-29")
         await page.fill("input[name='customer_name']", "Acme Corporation")
-        await page.fill("input[name='customer_email']", "info@acme.com")
+        await page.fill("input[name='certificate_id']", "CERT-99120-EN")
+        await page.fill("input[name='customer_place']", "London, UK")
+        await page.fill("input[name='machine_name']", "Laser-X1-English")
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
@@ -56,17 +59,21 @@ async def run_verification():
         await asyncio.sleep(1.0)
 
         # Arrive on Success page
-        print("Success page reached. Verification screenshot 1...")
-        await page.screenshot(path="/home/jules/verification/screenshots/verification_submit1.png")
+        print("Success page (EN) reached. Saving screenshot...")
+        await page.screenshot(path="/home/jules/verification/screenshots/verification_en.png")
 
-        print("Clicking Configure Another Service to test prefill option...")
-        await page.click("a[id='btn-configure-another']")
+        # Now, change language to Persian (فارسی)
+        print("Changing language to Persian (فارسی)...")
+        await page.click("text=فارسی")
         await asyncio.sleep(0.8)
 
+        # Now we are on the /parameters page in Persian because of the referer /submit protection redirect
+        print("Arrived on Persian RTL parameters page.")
+
         # Checking if Prefill Banner is visible and clicking it
-        prefill_banner = page.locator("div[id='prefill-banner']")
+        prefill_banner = page.locator("id=prefill-banner")
         if await prefill_banner.is_visible():
-            print("Prefill banner is visible! Clicking prefill button...")
+            print("Prefill banner is visible in Persian RTL! Clicking prefill button...")
             await page.click("button[id='btn-prefill']")
             await asyncio.sleep(0.5)
         else:
@@ -75,39 +82,39 @@ async def run_verification():
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
-        print("Step 2 (Service 2): Database Host...")
+        print("Step 2 (FA): Database Host...")
         await page.fill("input[id='input-0']", "acme-db-replica.internal")
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
-        print("Step 3 (Service 2): Database Port...")
+        print("Step 3 (FA): Database Port...")
         await page.fill("input[id='input-1']", "5433")
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
-        print("Step 4 (Service 2): API Key...")
+        print("Step 4 (FA): API Key...")
         await page.fill("input[id='input-2']", "acme-api-replica-key-abc")
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
-        print("Step 5 (Service 2): Max Retries...")
+        print("Step 5 (FA): Max Retries...")
         await page.fill("input[id='input-3']", "10")
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
-        print("Step 6 (Service 2): Timeout and Submitting...")
+        print("Step 6 (FA): Timeout and Submitting...")
         await page.fill("input[id='input-4']", "60")
         await page.click("button[id='submit-btn']")
         await asyncio.sleep(1.0)
 
-        # Save final screen
-        print("Success page 2 reached. Saving final screenshot...")
+        # Save final screen in Persian
+        print("Success page (FA) reached. Saving final screenshot...")
         await page.screenshot(path="/home/jules/verification/screenshots/verification.png")
         await asyncio.sleep(1.0)
 
         await context.close()
         await browser.close()
-        print("Consolidated wizard verification completed perfectly!")
+        print("Bilingual Persian and English unified wizard verification completed perfectly!")
 
 if __name__ == "__main__":
     asyncio.run(run_verification())

@@ -1,56 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang if lang else 'en' }}" dir="{{ 'rtl' if lang == 'fa' else 'ltr' }}" class="h-full bg-slate-50">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Configuration Wizard{% endblock %}</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Inter) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ text.title if text else 'ConfigFlow' }}</title>
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts Inter for Latin & Vazirmatn for Persian -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', 'Vazirmatn', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<body class="h-full flex flex-col text-slate-800">
 
-    <!-- Header / Navbar -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
-                    <i class="fa-solid fa-sliders text-lg"></i>
-                </div>
-                <span class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">ConfigFlow</span>
-            </div>
-
-            {% if user %}
-            <div class="flex items-center space-x-4">
-                <span class="text-sm font-medium text-slate-500 hidden sm:inline-block">Logged in as <strong class="text-slate-800">{{ user }}</strong></span>
-                <a href="/logout" class="inline-flex items-center space-x-1 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors duration-200">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Logout</span>
-                </a>
-            </div>
-            {% endif %}
+  <!-- Header / Navigation -->
+  <header class="bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3 {% if lang == 'fa' %}space-x-reverse{% endif %}">
+          <div class="flex-shrink-0 bg-gradient-to-tr from-indigo-600 to-purple-600 p-2 rounded-xl text-white shadow-md shadow-indigo-100">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </div>
+          <span class="text-xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+            {{ text.title if text else 'ConfigFlow' }}
+          </span>
         </div>
-    </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        {% block content %}{% endblock %}
-    </main>
+        <!-- Right Header Items -->
+        <div class="flex items-center space-x-4 {% if lang == 'fa' %}space-x-reverse{% endif %}">
+          <!-- Language Selector -->
+          <div class="flex items-center bg-slate-100 p-1 rounded-xl">
+            <a href="/change-lang/en" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all {% if lang == 'en' or not lang %}bg-white text-indigo-600 shadow-sm{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+              EN
+            </a>
+            <a href="/change-lang/fa" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all {% if lang == 'fa' %}bg-white text-indigo-600 shadow-sm{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+              فارسی
+            </a>
+          </div>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
-            &copy; 2025 ConfigFlow Inc. Designed with precision, responsive, and secure.
+          {% if user %}
+          <div class="hidden md:flex items-center space-x-2 {% if lang == 'fa' %}space-x-reverse{% endif %} text-sm">
+            <span class="text-slate-400">{{ text.logged_in_as if text else 'Logged in as' }}</span>
+            <span class="font-bold text-slate-700">{{ user }}</span>
+          </div>
+          <a href="/logout" class="inline-flex items-center space-x-1.5 {% if lang == 'fa' %}space-x-reverse{% endif %} px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs transition-colors shadow-sm shadow-rose-100/50">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>{{ text.logout if text else 'Logout' }}</span>
+          </a>
+          {% endif %}
         </div>
-    </footer>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+    <div class="w-full">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-100 py-6">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+      &copy; 2025 {{ text.title if text else 'ConfigFlow' }} Inc. All rights reserved.
+    </div>
+  </footer>
 
 </body>
 </html>

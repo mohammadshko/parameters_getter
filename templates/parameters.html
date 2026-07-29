@@ -6,10 +6,10 @@
   <div class="mb-8">
     <div class="flex justify-between items-center mb-2">
       <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-50">
-        Configuration Setup
+        {{ text.title }}
       </span>
       <span id="step-badge" class="text-sm font-semibold text-indigo-600">
-        Step 1 of 6
+        {{ text.step }} 1 {{ text.of }} 6
       </span>
     </div>
     <!-- Progress Bar -->
@@ -21,48 +21,71 @@
   <!-- Wizard Main Card -->
   <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
     <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 text-white">
-      <h1 class="text-2xl font-bold">Service Configuration</h1>
-      <p class="text-indigo-100 text-sm mt-1">Please fill in the details below to deploy your configuration.</p>
+      <h1 class="text-2xl font-bold">{{ text.wizard_title }}</h1>
+      <p class="text-indigo-100 text-sm mt-1">{{ text.wizard_subtitle }}</p>
     </div>
 
     <form id="wizard-form" action="/submit" method="post" class="p-8">
       <!-- Step 1: Customer Information -->
       <div class="step-pane" id="step-0">
         <div class="mb-6">
-          <label class="block text-sm font-medium text-slate-700 mb-2">Customer Profile</label>
-          <p class="text-xs text-slate-500 mb-4">Enter the customer organization details for this configuration.</p>
+          <label class="block text-sm font-medium text-slate-700 mb-2">{{ text.customer_section }}</label>
+          <p class="text-xs text-slate-500 mb-4">{{ text.customer_section_desc }}</p>
 
-          {% if prev_name or prev_email %}
+          {% if has_previous %}
           <!-- Prefill Option -->
-          <div id="prefill-banner" class="mb-4 p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
+          <div id="prefill-banner" class="mb-4 p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 flex items-center justify-between {% if lang == 'fa' %}flex-row-reverse{% endif %}">
+            <div class="flex items-center space-x-3 {% if lang == 'fa' %}space-x-reverse{% endif %}">
               <span class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
               </span>
-              <div>
-                <h4 class="text-sm font-semibold text-slate-800">Use previous customer details?</h4>
-                <p class="text-xs text-slate-500">{{ prev_name }} ({{ prev_email }})</p>
+              <div class="{% if lang == 'fa' %}text-right{% endif %}">
+                <h4 class="text-sm font-semibold text-slate-800">{{ text.prefill_title }}</h4>
+                <p class="text-xs text-slate-500 font-mono">{{ prev_name }} | {{ prev_machine }}</p>
               </div>
             </div>
             <button type="button" id="btn-prefill" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors">
-              Prefill
+              {{ text.prefill_btn }}
             </button>
           </div>
           {% endif %}
 
           <div class="space-y-4">
+            <!-- 1. Date -->
             <div>
-              <label for="customer_name" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Customer Name</label>
+              <label for="customer_date" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.customer_date }}</label>
+              <input type="text" id="customer_date" name="customer_date" required
+                placeholder="e.g. 2025-07-29"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+            <!-- 2. Customer Name -->
+            <div>
+              <label for="customer_name" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.customer_name }}</label>
               <input type="text" id="customer_name" name="customer_name" required
                 placeholder="e.g. Acme Corporation"
                 class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
             </div>
+            <!-- 3. Certificate ID -->
             <div>
-              <label for="customer_email" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Customer Email</label>
-              <input type="email" id="customer_email" name="customer_email" required
-                placeholder="e.g. info@acme.com"
+              <label for="certificate_id" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.certificate_id }}</label>
+              <input type="text" id="certificate_id" name="certificate_id" required
+                placeholder="e.g. CERT-99120"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+            <!-- 4. Place -->
+            <div>
+              <label for="customer_place" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.customer_place }}</label>
+              <input type="text" id="customer_place" name="customer_place" required
+                placeholder="e.g. Tehran, Iran"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
+            <!-- 5. Machine Name -->
+            <div>
+              <label for="machine_name" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.machine_name }}</label>
+              <input type="text" id="machine_name" name="machine_name" required
+                placeholder="e.g. Laser-Cutter-X1"
                 class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
             </div>
           </div>
@@ -73,7 +96,9 @@
       {% for key, val in config.items() %}
       <div class="step-pane hidden" id="step-{{ loop.index }}">
         <div class="mb-6">
-          <label for="input-{{ loop.index - 1 }}" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ key }}</label>
+          <label for="input-{{ loop.index - 1 }}" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+            {{ text[key] if text[key] else key }}
+          </label>
           <p class="text-xs text-slate-400 mb-4">Specify the parameter value for the deployment environment.</p>
           <input type="text" id="input-{{ loop.index - 1 }}" name="{{ key }}" value="{{ val }}" required
             class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-mono">
@@ -82,15 +107,15 @@
       {% endfor %}
 
       <!-- Navigation Actions -->
-      <div class="flex items-center justify-between border-t border-slate-100 pt-6 mt-6">
+      <div class="flex items-center justify-between border-t border-slate-100 pt-6 mt-6 {% if lang == 'fa' %}flex-row-reverse{% endif %}">
         <button type="button" id="back-btn" class="px-5 py-2.5 bg-slate-50 text-slate-600 font-medium rounded-xl hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 opacity-50 cursor-not-allowed" disabled>
-          Back
+          {{ text.back }}
         </button>
         <button type="button" id="next-btn" class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          Forward
+          {{ text.forward }}
         </button>
         <button type="submit" id="submit-btn" class="hidden px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          Submit Configuration
+          {{ text.submit }}
         </button>
       </div>
     </form>
@@ -110,19 +135,30 @@
   const prefillBtn = document.getElementById('btn-prefill');
   const prefillBanner = document.getElementById('prefill-banner');
 
+  // Translation constants
+  const stepWord = "{{ text.step }}";
+  const ofWord = "{{ text.of }}";
+  const prefilledBtnWord = "{{ text.prefilled_btn }}";
+
   // Set previous values from server session
+  const prevDateValue = "{{ prev_date | safe }}";
   const prevNameValue = "{{ prev_name | safe }}";
-  const prevEmailValue = "{{ prev_email | safe }}";
+  const prevCertValue = "{{ prev_cert | safe }}";
+  const prevPlaceValue = "{{ prev_place | safe }}";
+  const prevMachineValue = "{{ prev_machine | safe }}";
 
   if (prefillBtn) {
     prefillBtn.addEventListener('click', () => {
+      document.getElementById('customer_date').value = prevDateValue;
       document.getElementById('customer_name').value = prevNameValue;
-      document.getElementById('customer_email').value = prevEmailValue;
+      document.getElementById('certificate_id').value = prevCertValue;
+      document.getElementById('customer_place').value = prevPlaceValue;
+      document.getElementById('machine_name').value = prevMachineValue;
 
       // Add visual success flair
       prefillBanner.classList.add('bg-emerald-50', 'border-emerald-200');
       prefillBanner.classList.remove('bg-indigo-50/50', 'border-indigo-100');
-      prefillBtn.textContent = "Prefilled!";
+      prefillBtn.textContent = prefilledBtnWord;
       prefillBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
       prefillBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
     });
@@ -173,7 +209,7 @@
     }
 
     // Update progress indicator
-    stepBadge.textContent = `Step ${currentStep + 1} of ${totalSteps}`;
+    stepBadge.textContent = `${stepWord} ${currentStep + 1} ${ofWord} ${totalSteps}`;
     const progressPercent = ((currentStep + 1) / totalSteps) * 100;
     progressBar.style.width = `${progressPercent}%`;
   }
