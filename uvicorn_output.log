@@ -1,20 +1,12 @@
-INFO:     Started server process [222329]
+INFO:     Started server process [260008]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:41396 - "GET / HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:41396 - "GET /login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41396 - "POST /login HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:41396 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41396 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41396 - "GET /change-lang/fa HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:41396 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41396 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53080 - "GET / HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:53080 - "GET /login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53080 - "POST /login HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:53080 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53080 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53080 - "GET /change-lang/fa HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:53080 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53080 - "POST /submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60468 - "GET / HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:60468 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60468 - "POST /login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:60468 - "GET /parameters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60468 - "POST /submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60468 - "GET /change-lang/fa HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:60468 - "GET /parameters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60468 - "POST /submit HTTP/1.1" 200 OK
