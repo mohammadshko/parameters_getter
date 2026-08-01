@@ -84,6 +84,8 @@ async def run_verification():
 
         print("Step 2 (FA): Database Host...")
         await page.fill("input[id='input-0']", "acme-db-replica.internal")
+        # Let's save a screenshot here to see the button layout in Persian RTL
+        await page.screenshot(path="/home/jules/verification/screenshots/verification_fa_wizard.png")
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
