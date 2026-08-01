@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+
+  <!-- Submissions Page Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-6 border-b border-slate-200 gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+        {{ text.submissions_title }}
+      </h1>
+      <p class="mt-2 text-sm text-slate-500">
+        {{ text.submissions_subtitle }}
+      </p>
+    </div>
+
+    <div class="flex items-center space-x-3 {% if lang == 'fa' %}space-x-reverse{% endif %}">
+      {% if submissions %}
+      <a href="/submissions/download" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md shadow-indigo-100 transition-all">
+        <svg class="h-4 w-4 mr-2 {% if lang == 'fa' %}mr-0 ml-2{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        <span>{{ text.download_csv }}</span>
+      </a>
+      {% endif %}
+      <a href="/parameters" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-all">
+        {{ text.view_wizard_btn }}
+      </a>
+    </div>
+  </div>
+
+  <!-- Mobile and Desktop Layout for Submitted Forms -->
+  {% if not submissions %}
+  <div class="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm">
+    <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-slate-50 text-slate-400 mb-4">
+      <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+    </div>
+    <h3 class="text-base font-bold text-slate-800">{{ text.no_submissions }}</h3>
+    <div class="mt-4">
+      <a href="/parameters" class="inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-700">
+        {{ text.view_wizard_btn }} &rarr;
+      </a>
+    </div>
+  </div>
+  {% else %}
+
+  <!-- Responsive Card-based Layout for Tables -->
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-100 text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            <th scope="col" class="px-6 py-4 {% if lang == 'fa' %}text-right{% else %}text-left{% endif %} text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              {{ text.customer_date }}
+            </th>
+            <th scope="col" class="px-6 py-4 {% if lang == 'fa' %}text-right{% else %}text-left{% endif %} text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              {{ text.table_customer }}
+            </th>
+            <th scope="col" class="px-6 py-4 {% if lang == 'fa' %}text-right{% else %}text-left{% endif %} text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              {{ text.table_test }}
+            </th>
+            <th scope="col" class="px-6 py-4 {% if lang == 'fa' %}text-right{% else %}text-left{% endif %} text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              {{ text.table_params }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+          {% for sub in submissions %}
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <!-- Date -->
+            <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-600">
+              {{ sub.customer_date }}
+            </td>
+            <!-- Customer -->
+            <td class="px-6 py-4">
+              <div class="font-bold text-slate-800">{{ sub.customer_name }}</div>
+              <div class="text-xs text-slate-400 flex flex-wrap gap-x-2 mt-0.5">
+                <span>{{ text.certificate_id }}: <span class="text-slate-500 font-medium">{{ sub.certificate_id }}</span></span>
+                <span class="text-slate-200">|</span>
+                <span>{{ text.customer_place }}: <span class="text-slate-500 font-medium">{{ sub.customer_place }}</span></span>
+                <span class="text-slate-200">|</span>
+                <span>{{ text.machine_name }}: <span class="text-slate-500 font-medium">{{ sub.machine_name }}</span></span>
+              </div>
+            </td>
+            <!-- Profile/Test -->
+            <td class="whitespace-nowrap px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
+                {{ sub.selected_test }}
+              </span>
+            </td>
+            <!-- Dynamic Configuration Parameters -->
+            <td class="px-6 py-4 text-xs text-slate-600 max-w-xs">
+              <div class="flex flex-col gap-1.5">
+                {% for key, val in sub.config.items() %}
+                <div class="flex justify-between items-center bg-slate-50 px-2.5 py-1 rounded-lg">
+                  <span class="text-slate-400 font-medium mr-2 {% if lang == 'fa' %}mr-0 ml-2{% endif %}">
+                    {{ text[key] if text[key] else key }}:
+                  </span>
+                  <span class="font-bold text-slate-700">{{ val }}</span>
+                </div>
+                {% endfor %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

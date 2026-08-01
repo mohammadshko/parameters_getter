@@ -127,9 +127,31 @@ async def run_verification():
         await page.screenshot(path="/home/jules/verification/screenshots/verification.png")
         await asyncio.sleep(1.0)
 
+        # Navigating to submissions page
+        print("Navigating to submissions dashboard...")
+        await page.goto("http://127.0.0.1:8000/submissions")
+        await asyncio.sleep(1.0)
+
+        print("Taking screenshot of dynamic bilingual list page...")
+        await page.screenshot(path="/home/jules/verification/screenshots/verification_submissions.png")
+
+        # Test CSV generation
+        print("Verifying dynamic CSV generation...")
+        async with page.expect_download() as download_info:
+            await page.click("text=دانلود خروجی CSV")
+        download = await download_info.value
+        path = await download.path()
+        print(f"CSV downloaded successfully to path: {path}")
+
+        # Verify language switcher working on submissions list page
+        print("Switching back to English on submissions dashboard...")
+        await page.click("text=EN")
+        await asyncio.sleep(0.8)
+        await page.screenshot(path="/home/jules/verification/screenshots/verification_submissions_en.png")
+
         await context.close()
         await browser.close()
-        print("Bilingual Persian and English unified dynamic test selection wizard completed perfectly!")
+        print("Bilingual Persian and English unified dynamic test selection wizard and submissions spreadsheet dashboard completed perfectly!")
 
 if __name__ == "__main__":
     asyncio.run(run_verification())

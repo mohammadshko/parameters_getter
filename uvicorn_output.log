@@ -1,20 +1,17 @@
-INFO:     Started server process [300593]
+INFO:     Started server process [340617]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:49242 - "GET / HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:49242 - "GET /login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49242 - "POST /login HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:49242 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49242 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49242 - "GET /change-lang/fa HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:49242 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49242 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45920 - "GET / HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:45920 - "GET /login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45920 - "POST /login HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:45920 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45920 - "POST /submit HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45920 - "GET /change-lang/fa HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:45920 - "GET /parameters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45920 - "POST /submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40902 - "GET /submissions HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:47002 - "GET / HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:47002 - "GET /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47002 - "POST /login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:47002 - "GET /parameters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47002 - "POST /submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47002 - "GET /change-lang/fa HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:47002 - "GET /parameters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47002 - "POST /submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47002 - "GET /submissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47002 - "GET /submissions/download HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47002 - "GET /change-lang/en HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:47002 - "GET /submissions HTTP/1.1" 200 OK

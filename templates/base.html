@@ -35,6 +35,18 @@
           </span>
         </div>
 
+        <!-- Left Header Navigation Links (Authenticated Only) -->
+        {% if user %}
+        <div class="hidden md:flex items-center space-x-6 {% if lang == 'fa' %}space-x-reverse{% endif %} text-sm font-semibold text-slate-600">
+          <a href="/parameters" class="hover:text-indigo-600 transition-colors">
+            {{ text.nav_wizard if text else 'Config Wizard' }}
+          </a>
+          <a href="/submissions" class="hover:text-indigo-600 transition-colors">
+            {{ text.nav_submissions if text else 'Submissions' }}
+          </a>
+        </div>
+        {% endif %}
+
         <!-- Right Header Items -->
         <div class="flex items-center space-x-4 {% if lang == 'fa' %}space-x-reverse{% endif %}">
           <!-- Language Selector -->

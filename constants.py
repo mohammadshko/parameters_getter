@@ -54,7 +54,19 @@ TRANSLATIONS = {
         "Machine Target IP": "Machine Target IP",
         "Operation Frequency (Hz)": "Operation Frequency (Hz)",
         "Safety Protocol Version": "Safety Protocol Version",
-        "Operator Code": "Operator Code"
+        "Operator Code": "Operator Code",
+        # Submissions page
+        "submissions_title": "Submitted Configurations",
+        "submissions_subtitle": "Review and export all configured test scenarios and profiles.",
+        "download_csv": "Download CSV",
+        "no_submissions": "No submissions found yet.",
+        "nav_submissions": "Submissions",
+        "nav_wizard": "Config Wizard",
+        "table_customer": "Customer / Organ",
+        "table_test": "Test Profile",
+        "table_params": "Parameters",
+        "table_actions": "Actions",
+        "view_wizard_btn": "Go to Configurator"
     },
     "fa": {
         "title": "جریان پیکربندی",
@@ -110,7 +122,19 @@ TRANSLATIONS = {
         "Machine Target IP": "آدرس IP دستگاه هدف",
         "Operation Frequency (Hz)": "فرکانس کاری دستگاه (هرتز)",
         "Safety Protocol Version": "نسخه پروتکل ایمنی",
-        "Operator Code": "کد اختصاصی اپراتور"
+        "Operator Code": "کد اختصاصی اپراتور",
+        # Submissions page
+        "submissions_title": "پیکربندی‌های ثبت شده",
+        "submissions_subtitle": "بررسی و خروجی گرفتن از تمام سناریوها و فایل‌های پیکربندی تست.",
+        "download_csv": "دانلود خروجی CSV",
+        "no_submissions": "هنوز هیچ پیکربندی ثبت نشده است.",
+        "nav_submissions": "لیست ثبت‌ها",
+        "nav_wizard": "ویزارد پیکربندی",
+        "table_customer": "مشتری / سازمان",
+        "table_test": "پروفایل تست",
+        "table_params": "پارامترهای تنظیم شده",
+        "table_actions": "عملیات",
+        "view_wizard_btn": "رفتن به پیکربندی"
     }
 }
 

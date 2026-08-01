@@ -9,6 +9,9 @@ from constants import TRANSLATIONS, TESTS_CONFIG
 
 app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
 
+# In-memory global store for submitted configurations
+SUBMITTED_FORMS = []
+
 # Session Secret Key
 app.add_middleware(SessionMiddleware, secret_key="super-secret-fastapi-key-for-templates-bilingual-dynamic")
 
@@ -112,6 +115,64 @@ async def parameters_get(request: Request):
         }
     )
 
+@app.get("/submissions", response_class=HTMLResponse)
+async def submissions_get(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    lang = request.session.get("lang", "en")
+    return templates.TemplateResponse(
+        request=request,
+        name="submissions.html",
+        context={
+            "user": user,
+            "lang": lang,
+            "text": TRANSLATIONS[lang],
+            "submissions": SUBMITTED_FORMS
+        }
+    )
+
+@app.get("/submissions/download")
+async def submissions_download(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    import csv
+    import io
+    from fastapi.responses import StreamingResponse
+
+    # Generate CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Write dynamic header
+    writer.writerow([
+        "Date", "Customer Name", "Certificate ID", "Place", "Machine Name", "Selected Test", "Configuration Parameters"
+    ])
+
+    for sub in SUBMITTED_FORMS:
+        # Format config parameters as key=value separated by semicolon for clean csv rendering
+        config_str = "; ".join([f"{k}: {v}" for k, v in sub["config"].items()])
+        writer.writerow([
+            sub["customer_date"],
+            sub["customer_name"],
+            sub["certificate_id"],
+            sub["customer_place"],
+            sub["machine_name"],
+            sub["selected_test"],
+            config_str
+        ])
+
+    output.seek(0)
+
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=config_submissions.csv"}
+    )
+
 @app.get("/submit")
 async def submit_get(request: Request):
     return RedirectResponse(url="/parameters", status_code=status.HTTP_303_SEE_OTHER)
@@ -147,6 +208,17 @@ async def parameters_post(request: Request):
     test_keys = TESTS_CONFIG.get(selected_test, TESTS_CONFIG["Test A"]).keys()
     for key in test_keys:
         submitted_config[key] = form_data.get(key, "")
+
+    # Save the submission in the global list
+    SUBMITTED_FORMS.append({
+        "customer_date": customer_date,
+        "customer_name": customer_name,
+        "certificate_id": certificate_id,
+        "customer_place": customer_place,
+        "machine_name": machine_name,
+        "selected_test": selected_test,
+        "config": submitted_config
+    })
 
     return templates.TemplateResponse(
         request=request,
