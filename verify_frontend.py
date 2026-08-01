@@ -23,7 +23,7 @@ async def run_verification():
         await page.click("button[type='submit']")
         await asyncio.sleep(0.8)
 
-        # Now directly on the consolidated parameters wizard page in English
+        # Step 1: Customer Info
         print("Step 1 (EN): Filling customer info...")
         await page.fill("input[name='customer_date']", "2025-07-29")
         await page.fill("input[name='customer_name']", "Acme Corporation")
@@ -33,44 +33,50 @@ async def run_verification():
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
-        print("Step 2: Entering Database Host...")
-        await page.fill("input[id='input-0']", "acme-db-primary.internal")
+        # Step 2: Test Selection (Default Test A)
+        print("Step 2 (EN): Selecting Test A and moving forward...")
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
-        print("Step 3: Entering Database Port...")
-        await page.fill("input[id='input-1']", "5432")
+        # Test A parameter wizard steps
+        print("Step 3: Database Host...")
+        await page.fill("input[id='input-Test-A-0']", "acme-db-primary.internal")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
 
-        print("Step 4: Entering API Key...")
-        await page.fill("input[id='input-2']", "acme-api-secret-key-xyz")
+        print("Step 4: Database Port...")
+        await page.fill("input[id='input-Test-A-1']", "5432")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
 
-        print("Step 5: Entering Max Retries...")
-        await page.fill("input[id='input-3']", "5")
+        print("Step 5: API Key...")
+        await page.fill("input[id='input-Test-A-2']", "acme-api-secret-key-xyz")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
 
-        print("Step 6: Entering Timeout and Submitting...")
-        await page.fill("input[id='input-4']", "30")
+        print("Step 6: Max Retries...")
+        await page.fill("input[id='input-Test-A-3']", "5")
+        await page.click("button[id='next-btn']")
+        await asyncio.sleep(0.3)
+
+        print("Step 7: Timeout and Submitting...")
+        await page.fill("input[id='input-Test-A-4']", "30")
         await page.click("button[id='submit-btn']")
         await asyncio.sleep(1.0)
 
-        # Arrive on Success page
-        print("Success page (EN) reached. Saving screenshot...")
-        await page.screenshot(path="/home/jules/verification/screenshots/verification_en.png")
+        # Arrive on Success page for Test A
+        print("Success page (EN - Test A) reached. Saving screenshot...")
+        await page.screenshot(path="/home/jules/verification/screenshots/verification_en_test_a.png")
 
         # Now, change language to Persian (فارسی)
         print("Changing language to Persian (فارسی)...")
         await page.click("text=فارسی")
         await asyncio.sleep(0.8)
 
-        # Now we are on the /parameters page in Persian because of the referer /submit protection redirect
+        # Now we are on the /parameters page in Persian RTL because of the referer /submit protection redirect
         print("Arrived on Persian RTL parameters page.")
 
-        # Checking if Prefill Banner is visible and clicking it
+        # Prefill customer info
         prefill_banner = page.locator("id=prefill-banner")
         if await prefill_banner.is_visible():
             print("Prefill banner is visible in Persian RTL! Clicking prefill button...")
@@ -82,41 +88,48 @@ async def run_verification():
         await page.click("button[id='next-btn']")
         await asyncio.sleep(0.5)
 
-        print("Step 2 (FA): Database Host...")
-        await page.fill("input[id='input-0']", "acme-db-replica.internal")
-        # Let's save a screenshot here to see the button layout in Persian RTL
+        # Step 2: Test Selection in Persian RTL
+        print("Step 2 (FA): Searching and Selecting 'Test B' in Persian...")
+        # Search for Test B
+        await page.fill("input[id='test-search-input']", "Test B")
+        await asyncio.sleep(0.5)
+        # Click on Test B
+        await page.click("button[id='test-card-Test-B']")
+        await asyncio.sleep(0.5)
+        await page.click("button[id='next-btn']")
+        await asyncio.sleep(0.5)
+
+        # Test B specific parameter steps
+        print("Step 3 (FA): Database Replica Host...")
+        await page.fill("input[id='input-Test-B-0']", "acme-db-replica.internal")
+        # Save a screenshot showing Persian RTL wizard dynamic fields and buttons
         await page.screenshot(path="/home/jules/verification/screenshots/verification_fa_wizard.png")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
 
-        print("Step 3 (FA): Database Port...")
-        await page.fill("input[id='input-1']", "5433")
+        print("Step 4 (FA): Port...")
+        await page.fill("input[id='input-Test-B-1']", "5433")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
 
-        print("Step 4 (FA): API Key...")
-        await page.fill("input[id='input-2']", "acme-api-replica-key-abc")
+        print("Step 5 (FA): Read Cache Size (MB)...")
+        await page.fill("input[id='input-Test-B-2']", "512")
         await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
 
-        print("Step 5 (FA): Max Retries...")
-        await page.fill("input[id='input-3']", "10")
-        await page.click("button[id='next-btn']")
-        await asyncio.sleep(0.5)
-
-        print("Step 6 (FA): Timeout and Submitting...")
-        await page.fill("input[id='input-4']", "60")
+        print("Step 6 (FA): Use SSL...")
+        await page.fill("input[id='input-Test-B-3']", "Yes")
         await page.click("button[id='submit-btn']")
         await asyncio.sleep(1.0)
 
-        # Save final screen in Persian
-        print("Success page (FA) reached. Saving final screenshot...")
+        # Save final success screen in Persian for Test B
+        print("Success page (FA - Test B) reached. Saving final screenshot...")
         await page.screenshot(path="/home/jules/verification/screenshots/verification.png")
         await asyncio.sleep(1.0)
 
         await context.close()
         await browser.close()
-        print("Bilingual Persian and English unified wizard verification completed perfectly!")
+        print("Bilingual Persian and English unified dynamic test selection wizard completed perfectly!")
 
 if __name__ == "__main__":
     asyncio.run(run_verification())

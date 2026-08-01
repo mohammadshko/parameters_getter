@@ -9,12 +9,12 @@
         {{ text.title }}
       </span>
       <span id="step-badge" class="text-sm font-semibold text-indigo-600">
-        {{ text.step }} 1 {{ text.of }} 6
+        {{ text.step }} 1 {{ text.of }} 3
       </span>
     </div>
     <!-- Progress Bar -->
     <div class="overflow-hidden h-2 text-xs flex rounded bg-indigo-50">
-      <div id="progress-bar" style="width: 16.66%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-600 transition-all duration-300"></div>
+      <div id="progress-bar" style="width: 10%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-600 transition-all duration-300"></div>
     </div>
   </div>
 
@@ -26,8 +26,11 @@
     </div>
 
     <form id="wizard-form" action="/submit" method="post" class="p-8">
-      <!-- Step 1: Customer Information -->
-      <div class="step-pane" id="step-0">
+      <!-- Selected Test Hidden Input -->
+      <input type="hidden" name="selected_test" id="selected-test-input" value="Test A">
+
+      <!-- Step 1: Customer Information (Pane index 0) -->
+      <div class="step-pane" id="pane-customer">
         <div class="mb-6">
           <label class="block text-sm font-medium text-slate-700 mb-2">{{ text.customer_section }}</label>
           <p class="text-xs text-slate-500 mb-4">{{ text.customer_section_desc }}</p>
@@ -92,17 +95,53 @@
         </div>
       </div>
 
-      <!-- Step 2-6: Config Dict Items -->
-      {% for key, val in config.items() %}
-      <div class="step-pane hidden" id="step-{{ loop.index }}">
+      <!-- Step 2: Test Selection (Pane index 1) -->
+      <div class="step-pane hidden" id="pane-test-select">
         <div class="mb-6">
-          <label for="input-{{ loop.index - 1 }}" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-            {{ text[key] if text[key] else key }}
-          </label>
-          <input type="text" id="input-{{ loop.index - 1 }}" name="{{ key }}" value="{{ val }}" required
-            class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-mono">
+          <label class="block text-sm font-medium text-slate-700 mb-2">{{ text.select_test_title }}</label>
+          <p class="text-xs text-slate-500 mb-4">{{ text.select_test_desc }}</p>
+
+          <!-- Search Input -->
+          <div class="mb-4 relative">
+            <input type="text" id="test-search-input" placeholder="{{ text.search_test_placeholder }}"
+              class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+          </div>
+
+          <!-- Selection grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="test-options-list">
+            {% for test_name, params in tests_config.items() %}
+            <button type="button" id="test-card-{{ test_name | replace(' ', '-') }}"
+              class="test-card-btn text-right/left p-5 rounded-xl border-2 border-slate-100 bg-slate-50/50 hover:bg-slate-50 hover:border-indigo-400 transition-all font-semibold"
+              data-test="{{ test_name }}">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-slate-800">{{ test_name }}</span>
+                <span class="test-select-dot h-4 w-4 rounded-full border border-slate-300 bg-white flex items-center justify-center">
+                  <span class="h-2 w-2 rounded-full bg-indigo-600 hidden"></span>
+                </span>
+              </div>
+              <span class="block text-xs font-normal text-slate-400 font-mono text-ellipsis overflow-hidden">
+                {{ params.keys() | list | join(', ') }}
+              </span>
+            </button>
+            {% endfor %}
+          </div>
         </div>
       </div>
+
+      <!-- Step 3+: Config Parameters dynamically filtered by selected test -->
+      {% for test_name, params in tests_config.items() %}
+        {% for key, val in params.items() %}
+        <div class="step-pane hidden test-parameter-pane" id="pane-param-{{ test_name | replace(' ', '-') }}-{{ loop.index0 }}" data-test-owner="{{ test_name }}">
+          <div class="mb-6">
+            <label class="block text-xs font-semibold text-indigo-600 tracking-wider mb-2 uppercase">{{ test_name }} &bull; {{ text.selected_test_label }}</label>
+            <label for="input-{{ test_name | replace(' ', '-') }}-{{ loop.index0 }}" class="block text-sm font-semibold text-slate-700 mb-4">
+              {{ text[key] if text[key] else key }}
+            </label>
+            <input type="text" id="input-{{ test_name | replace(' ', '-') }}-{{ loop.index0 }}" name="{{ key }}" value="{{ val }}" required
+              class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-mono">
+          </div>
+        </div>
+        {% endfor %}
       {% endfor %}
 
       <!-- Navigation Actions -->
@@ -122,10 +161,13 @@
 </div>
 
 <script>
-  let currentStep = 0;
-  const totalSteps = 6; // 1 Customer step + 5 config steps
+  // All configuration variables
+  const testsConfig = {{ tests_config | tojson | safe }};
+  const stepWord = "{{ text.step }}";
+  const ofWord = "{{ text.of }}";
+  const prefilledBtnWord = "{{ text.prefilled_btn }}";
 
-  const stepPanes = document.querySelectorAll('.step-pane');
+  // Cache elements
   const backBtn = document.getElementById('back-btn');
   const nextBtn = document.getElementById('next-btn');
   const submitBtn = document.getElementById('submit-btn');
@@ -133,13 +175,52 @@
   const progressBar = document.getElementById('progress-bar');
   const prefillBtn = document.getElementById('btn-prefill');
   const prefillBanner = document.getElementById('prefill-banner');
+  const testSearchInput = document.getElementById('test-search-input');
+  const testCardBtns = document.querySelectorAll('.test-card-btn');
+  const selectedTestInput = document.getElementById('selected-test-input');
 
-  // Translation constants
-  const stepWord = "{{ text.step }}";
-  const ofWord = "{{ text.of }}";
-  const prefilledBtnWord = "{{ text.prefilled_btn }}";
+  // Set initial selected test
+  let activeTestName = "Test A";
 
-  // Set previous values from server session
+  // Handle Search filtering
+  testSearchInput.addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    testCardBtns.forEach(btn => {
+      const text = btn.getAttribute('data-test').toLowerCase();
+      if (text.includes(filter)) {
+        btn.classList.remove('hidden');
+      } else {
+        btn.classList.add('hidden');
+      }
+    });
+  });
+
+  // Handle Test Card selection
+  testCardBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      // De-select all cards
+      testCardBtns.forEach(b => {
+        b.classList.remove('border-indigo-600', 'bg-indigo-50/50');
+        b.classList.add('border-slate-100', 'bg-slate-50/50');
+        b.querySelector('.test-select-dot span').classList.add('hidden');
+      });
+      // Select this card
+      this.classList.add('border-indigo-600', 'bg-indigo-50/50');
+      this.classList.remove('border-slate-100', 'bg-slate-50/50');
+      this.querySelector('.test-select-dot span').classList.remove('hidden');
+
+      activeTestName = this.getAttribute('data-test');
+      selectedTestInput.value = activeTestName;
+    });
+  });
+
+  // Pre-select the default "Test A" card initially
+  const defaultCard = document.getElementById('test-card-Test-A');
+  if (defaultCard) {
+    defaultCard.click();
+  }
+
+  // Set previous values from server session for customer details prefill
   const prevDateValue = "{{ prev_date | safe }}";
   const prevNameValue = "{{ prev_name | safe }}";
   const prevCertValue = "{{ prev_cert | safe }}";
@@ -163,8 +244,28 @@
     });
   }
 
-  function validateStep(step) {
-    const pane = document.getElementById(`step-${step}`);
+  // Active steps calculation based on the selected Test Configuration
+  let currentActiveStepIndex = 0;
+  let activePanesList = [];
+
+  function buildActivePanes() {
+    activePanesList = [];
+
+    // Step 1 is always customer info
+    activePanesList.push(document.getElementById('pane-customer'));
+
+    // Step 2 is always test selection
+    activePanesList.push(document.getElementById('pane-test-select'));
+
+    // Remaining steps are only parameters for the active test configuration
+    const escapedTestName = activeTestName.replace(' ', '-');
+    const paramPanes = document.querySelectorAll(`.test-parameter-pane[data-test-owner="${activeTestName}"]`);
+    paramPanes.forEach(pane => {
+      activePanesList.push(pane);
+    });
+  }
+
+  function validatePane(pane) {
     const inputs = pane.querySelectorAll('input[required]');
     let isValid = true;
     inputs.forEach(input => {
@@ -181,17 +282,17 @@
   }
 
   function updateWizard() {
-    // Show/hide panes
-    stepPanes.forEach((pane, idx) => {
-      if (idx === currentStep) {
-        pane.classList.remove('hidden');
-      } else {
-        pane.classList.add('hidden');
-      }
-    });
+    // Hide all step panes first
+    document.querySelectorAll('.step-pane').forEach(pane => pane.classList.add('hidden'));
 
-    // Update buttons
-    if (currentStep === 0) {
+    // Show only the active pane for current step index
+    const currentPane = activePanesList[currentActiveStepIndex];
+    if (currentPane) {
+      currentPane.classList.remove('hidden');
+    }
+
+    // Set enabled/disabled state for Back button
+    if (currentActiveStepIndex === 0) {
       backBtn.disabled = true;
       backBtn.classList.add('opacity-50', 'cursor-not-allowed');
     } else {
@@ -199,7 +300,8 @@
       backBtn.classList.remove('opacity-50', 'cursor-not-allowed');
     }
 
-    if (currentStep === totalSteps - 1) {
+    // Toggle next and submit buttons
+    if (currentActiveStepIndex === activePanesList.length - 1) {
       nextBtn.classList.add('hidden');
       submitBtn.classList.remove('hidden');
     } else {
@@ -207,27 +309,38 @@
       submitBtn.classList.add('hidden');
     }
 
-    // Update progress indicator
-    stepBadge.textContent = `${stepWord} ${currentStep + 1} ${ofWord} ${totalSteps}`;
-    const progressPercent = ((currentStep + 1) / totalSteps) * 100;
+    // Update progress numbers
+    stepBadge.textContent = `${stepWord} ${currentActiveStepIndex + 1} ${ofWord} ${activePanesList.length}`;
+    const progressPercent = ((currentActiveStepIndex + 1) / activePanesList.length) * 100;
     progressBar.style.width = `${progressPercent}%`;
   }
 
+  // Event handler for Next navigation
   nextBtn.addEventListener('click', () => {
-    if (validateStep(currentStep)) {
-      if (currentStep < totalSteps - 1) {
-        currentStep++;
+    // 1. Build list of active panes (in case user changed test on step 2)
+    buildActivePanes();
+
+    const currentPane = activePanesList[currentActiveStepIndex];
+    if (validatePane(currentPane)) {
+      if (currentActiveStepIndex < activePanesList.length - 1) {
+        currentActiveStepIndex++;
         updateWizard();
       }
     }
   });
 
+  // Event handler for Back navigation
   backBtn.addEventListener('click', () => {
-    if (currentStep > 0) {
-      currentStep--;
+    buildActivePanes();
+    if (currentActiveStepIndex > 0) {
+      currentActiveStepIndex--;
       updateWizard();
     }
   });
+
+  // Initialize active list of wizard steps
+  buildActivePanes();
+  updateWizard();
 
   // Enable navigation by hitting Enter key
   document.getElementById('wizard-form').addEventListener('keydown', (e) => {
@@ -235,7 +348,7 @@
       const activeEl = document.activeElement;
       if (activeEl && activeEl.tagName === 'INPUT') {
         e.preventDefault();
-        if (currentStep < totalSteps - 1) {
+        if (currentActiveStepIndex < activePanesList.length - 1) {
           nextBtn.click();
         }
       }

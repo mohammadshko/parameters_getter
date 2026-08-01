@@ -4,101 +4,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
+# Import modularized translation catalogs and test configuration from constants file
+from constants import TRANSLATIONS, TESTS_CONFIG
+
 app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
 
 # Session Secret Key
-app.add_middleware(SessionMiddleware, secret_key="super-secret-fastapi-key-for-templates-bilingual")
-
-# Config Dict
-DEFAULT_CONFIG = {
-    "Database Host": "localhost",
-    "Database Port": "5432",
-    "API Key": "super-secret-api-key-123",
-    "Max Retries": "5",
-    "Timeout (seconds)": "30"
-}
-
-# Translation Catalog for English and Persian (RTL support included)
-TRANSLATIONS = {
-    "en": {
-        "title": "ConfigFlow",
-        "login_title": "Sign in to your account",
-        "login_subtitle": "Manage and deploy service configurations elegantly",
-        "username": "Username",
-        "password": "Password",
-        "sign_in": "Sign In",
-        "logout": "Logout",
-        "logged_in_as": "Logged in as",
-        "step": "Step",
-        "of": "of",
-        "wizard_title": "Service Configuration",
-        "wizard_subtitle": "Please fill in the details below to deploy your configuration.",
-        "customer_section": "Customer Profile",
-        "customer_section_desc": "Enter the customer details for this configuration.",
-        "prefill_title": "Use previous customer details?",
-        "prefill_btn": "Prefill",
-        "prefilled_btn": "Prefilled!",
-        "customer_date": "Date",
-        "customer_name": "Customer Name",
-        "certificate_id": "Certificate ID",
-        "customer_place": "Place",
-        "machine_name": "Machine Name",
-        "back": "Back",
-        "forward": "Forward",
-        "submit": "Submit Configuration",
-        "success_title": "Configuration Submitted",
-        "success_subtitle": "Successfully created and saved service configuration for",
-        "submitted_details": "Just Submitted Service Configuration",
-        "configure_another": "Configure Another Service",
-        "sign_out": "Sign Out",
-        "error_login": "Invalid username or password. Please try admin/admin.",
-        # Parameter labels
-        "Database Host": "Database Host",
-        "Database Port": "Database Port",
-        "API Key": "API Key",
-        "Max Retries": "Max Retries",
-        "Timeout (seconds)": "Timeout (seconds)"
-    },
-    "fa": {
-        "title": "جریان پیکربندی",
-        "login_title": "ورود به حساب کاربری",
-        "login_subtitle": "پیکربندی خدمات خود را به زیبایی مدیریت و مستقر کنید",
-        "username": "نام کاربری",
-        "password": "رمز عبور",
-        "sign_in": "ورود",
-        "logout": "خروج",
-        "logged_in_as": "وارد شده به عنوان",
-        "step": "مرحله",
-        "of": "از",
-        "wizard_title": "پیکربندی سرویس",
-        "wizard_subtitle": "لطفاً جزئیات زیر را برای استقرار پیکربندی خود وارد کنید.",
-        "customer_section": "پروفایل مشتری",
-        "customer_section_desc": "مشخصات سازمان مشتری را برای این پیکربندی وارد کنید.",
-        "prefill_title": "استفاده از اطلاعات مشتری قبلی؟",
-        "prefill_btn": "تکمیل خودکار",
-        "prefilled_btn": "تکمیل شد!",
-        "customer_date": "تاریخ",
-        "customer_name": "نام مشتری",
-        "certificate_id": "شناسه گواهینامه",
-        "customer_place": "محل",
-        "machine_name": "نام دستگاه",
-        "back": "قبلی",
-        "forward": "بعدی",
-        "submit": "ثبت پیکربندی",
-        "success_title": "پیکربندی با موفقیت ثبت شد",
-        "success_subtitle": "پیکربندی سرویس با موفقیت ایجاد و برای مشتری ذخیره شد:",
-        "submitted_details": "پیکربندی سرویس ارسال شده",
-        "configure_another": "پیکربندی یک سرویس دیگر",
-        "sign_out": "خروج از سیستم",
-        "error_login": "نام کاربری یا رمز عبور نامعتبر است. لطفا admin/admin را امتحان کنید.",
-        # Parameter labels
-        "Database Host": "آدرس پایگاه داده",
-        "Database Port": "پورت پایگاه داده",
-        "API Key": "کلید API",
-        "Max Retries": "حداکثر دفعات تلاش",
-        "Timeout (seconds)": "زمان انتظار (ثانیه)"
-    }
-}
+app.add_middleware(SessionMiddleware, secret_key="super-secret-fastapi-key-for-templates-bilingual-dynamic")
 
 # Templates configuration
 templates = Jinja2Templates(directory="templates")
@@ -187,7 +99,7 @@ async def parameters_get(request: Request):
         request=request,
         name="parameters.html",
         context={
-            "config": DEFAULT_CONFIG,
+            "tests_config": TESTS_CONFIG,
             "user": user,
             "lang": lang,
             "text": TRANSLATIONS[lang],
@@ -220,6 +132,9 @@ async def parameters_post(request: Request):
     customer_place = form_data.get("customer_place", "")
     machine_name = form_data.get("machine_name", "")
 
+    # Extract test name
+    selected_test = form_data.get("selected_test", "Test A")
+
     # Store in session for prefill next time
     request.session["prev_customer_date"] = customer_date
     request.session["prev_customer_name"] = customer_name
@@ -227,10 +142,11 @@ async def parameters_post(request: Request):
     request.session["prev_customer_place"] = customer_place
     request.session["prev_machine_name"] = machine_name
 
-    # Construct config values from form data
+    # Construct config values dynamically based on selected test's keys
     submitted_config = {}
-    for key in DEFAULT_CONFIG.keys():
-        submitted_config[key] = form_data.get(key, DEFAULT_CONFIG[key])
+    test_keys = TESTS_CONFIG.get(selected_test, TESTS_CONFIG["Test A"]).keys()
+    for key in test_keys:
+        submitted_config[key] = form_data.get(key, "")
 
     return templates.TemplateResponse(
         request=request,
@@ -240,6 +156,7 @@ async def parameters_post(request: Request):
             "user": user,
             "lang": lang,
             "text": TRANSLATIONS[lang],
+            "selected_test": selected_test,
             "customer_date": customer_date,
             "customer_name": customer_name,
             "certificate_id": certificate_id,

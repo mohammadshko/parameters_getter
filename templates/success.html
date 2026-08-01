@@ -45,6 +45,12 @@
         </div>
       </div>
 
+      <!-- Selected Test Header -->
+      <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between {% if lang == 'fa' %}flex-row-reverse{% endif %}">
+        <span class="text-sm font-semibold text-slate-700">{{ text.selected_test_label }}</span>
+        <span class="px-3 py-1 bg-indigo-600 text-white font-bold text-xs rounded-lg shadow-sm font-mono">{{ selected_test }}</span>
+      </div>
+
       <!-- Parameter Details Block -->
       <div>
         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{{ text.submitted_details }}</h3>
