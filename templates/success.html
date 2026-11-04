@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
+<div class="max-w-3xl mx-auto">
   <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
     <!-- Success Banner -->
     <div class="bg-emerald-50 border-b border-emerald-100 p-8 text-center">
@@ -12,62 +12,106 @@
       </div>
       <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">{{ text.success_title }}</h1>
       <p class="text-slate-500 text-sm mt-2">
-        {{ text.success_subtitle }} <span class="font-semibold text-slate-700">{{ customer_name }}</span>.
+        {{ text.success_subtitle }} <span class="font-semibold text-slate-700">{{ record.customer_name }}</span>.
       </p>
     </div>
 
     <!-- Submitted Details -->
     <div class="p-8 space-y-6">
-      <!-- Customer Information Block -->
+      <!-- Customer Information Block (Only Name and Address) -->
       <div>
         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{{ text.customer_section }}</h3>
         <div class="bg-slate-50 rounded-xl border border-slate-100 divide-y divide-slate-100 text-sm">
           <div class="flex items-center justify-between p-4">
-            <span class="font-medium text-slate-500">{{ text.customer_date }}</span>
-            <span class="font-semibold text-slate-800">{{ customer_date }}</span>
-          </div>
-          <div class="flex items-center justify-between p-4">
             <span class="font-medium text-slate-500">{{ text.customer_name }}</span>
-            <span class="font-semibold text-slate-800">{{ customer_name }}</span>
+            <span class="font-semibold text-slate-800">{{ record.customer_name }}</span>
           </div>
           <div class="flex items-center justify-between p-4">
-            <span class="font-medium text-slate-500">{{ text.certificate_id }}</span>
-            <span class="font-semibold text-slate-800">{{ certificate_id }}</span>
-          </div>
-          <div class="flex items-center justify-between p-4">
-            <span class="font-medium text-slate-500">{{ text.customer_place }}</span>
-            <span class="font-semibold text-slate-800">{{ customer_place }}</span>
-          </div>
-          <div class="flex items-center justify-between p-4">
-            <span class="font-medium text-slate-500">{{ text.machine_name }}</span>
-            <span class="font-semibold text-slate-800">{{ machine_name }}</span>
+            <span class="font-medium text-slate-500">{{ text.customer_address }}</span>
+            <span class="font-semibold text-slate-800">{{ record.customer_address }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Selected Test Header -->
-      <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between {% if lang == 'fa' %}flex-row-reverse{% endif %}">
-        <span class="text-sm font-semibold text-slate-700">{{ text.selected_test_label }}</span>
-        <span class="px-3 py-1 bg-indigo-600 text-white font-bold text-xs rounded-lg shadow-sm font-mono">{{ selected_test }}</span>
+      <!-- Selected Tool and Producer Header -->
+      <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold text-slate-400 uppercase">{{ text.selected_tool_label }}</span>
+          <div class="text-base font-bold text-slate-800">{{ record.selected_tool }}</div>
+        </div>
+        <div class="text-right rtl:text-left">
+          <span class="text-xs font-semibold text-slate-400 uppercase">{{ text.producer_label }}</span>
+          <div class="px-3 py-1 bg-indigo-600 text-white font-bold text-xs rounded-lg shadow-sm font-mono inline-block">
+            {{ record.producer_name }}
+          </div>
+        </div>
       </div>
 
-      <!-- Parameter Details Block -->
+      <!-- Tool Specifications Details Block -->
       <div>
-        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{{ text.submitted_details }}</h3>
-        <div class="bg-slate-50 rounded-xl border border-slate-100 divide-y divide-slate-100">
-          {% for key, val in config.items() %}
-          <div class="flex items-center justify-between p-4">
-            <span class="text-sm font-semibold text-slate-600">{{ text[key] if text[key] else key }}</span>
-            <span class="text-sm font-mono text-indigo-600 bg-white border border-slate-100 px-3 py-1 rounded-lg shadow-sm">
-              {{ val }}
-            </span>
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{{ text.tool_specs_title }}</h3>
+        <div class="bg-slate-50 rounded-xl border border-slate-100 divide-y divide-slate-100 text-sm">
+          <div class="flex items-center justify-between p-3.5">
+            <span class="font-medium text-slate-500">{{ text.tool_model }}</span>
+            <span class="font-mono text-slate-800 font-semibold">{{ record.model }}</span>
           </div>
-          {% endfor %}
+          <div class="flex items-center justify-between p-3.5">
+            <span class="font-medium text-slate-500">{{ text.tool_range }}</span>
+            <span class="font-mono text-slate-800 font-semibold">{{ record.range }}</span>
+          </div>
+          <div class="flex items-center justify-between p-3.5">
+            <span class="font-medium text-slate-500">{{ text.tool_resolution }}</span>
+            <span class="font-mono text-slate-800 font-semibold">{{ record.resolution }}</span>
+          </div>
+          <div class="flex items-center justify-between p-3.5">
+            <span class="font-medium text-slate-500">{{ text.tool_serial_no }}</span>
+            <span class="font-mono text-slate-800 font-semibold">{{ record.serial_no }}</span>
+          </div>
+          <div class="flex items-center justify-between p-3.5">
+            <span class="font-medium text-slate-500">{{ text.tool_location }}</span>
+            <span class="font-mono text-slate-800 font-semibold">{{ record.tool_location }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calibration Table Block matching user image.png -->
+      <div>
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{{ text.calibration_table_title }}</h3>
+        <div class="border border-[#782828]/30 rounded-xl overflow-hidden shadow-sm bg-white">
+          <table class="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <th rowspan="2" class="w-1/3 bg-[#dfb2b2] text-slate-900 font-bold px-4 py-3 text-center border-r border-b border-[#a86868] align-middle">
+                  {{ text.table_uuc_header }}
+                </th>
+                <th colspan="2" class="w-2/3 bg-[#dfb2b2] text-slate-900 font-bold px-4 py-2 text-center border-b border-[#a86868]">
+                  {{ text.table_ref_header }}
+                </th>
+              </tr>
+              <tr>
+                <th class="w-1/3 bg-[#eedada] text-slate-900 font-bold px-4 py-2 text-center border-r border-b border-[#c49898]">
+                  {{ text.table_rising }}
+                </th>
+                <th class="w-1/3 bg-[#eedada] text-slate-900 font-bold px-4 py-2 text-center border-b border-[#c49898]">
+                  {{ text.table_falling }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in record.calibration_points %}
+              <tr class="border-b border-black last:border-b-0 hover:bg-slate-50">
+                <td class="border-r border-black p-2.5 text-center font-mono text-slate-800 font-semibold">{{ row.uuc }}</td>
+                <td class="border-r border-black p-2.5 text-center font-mono text-slate-800 font-semibold">{{ row.ref_rising }}</td>
+                <td class="p-2.5 text-center font-mono text-slate-800 font-semibold">{{ row.ref_falling }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
 
       <!-- Actions -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100 {% if lang == 'fa' %}sm:flex-row-reverse{% endif %}">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
         <a href="/parameters" id="btn-configure-another" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-100 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500">
           <svg class="h-5 w-5 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
