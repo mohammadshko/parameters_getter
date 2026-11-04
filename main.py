@@ -4,8 +4,8 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
-# Import modularized translation catalogs and test configuration from constants file
-from constants import TRANSLATIONS, TESTS_CONFIG
+# Import modularized translation catalogs and tools configuration from constants file
+from constants import TRANSLATIONS, TOOLS_CONFIG
 
 app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
 
@@ -88,29 +88,27 @@ async def parameters_get(request: Request):
 
     lang = request.session.get("lang", "en")
 
-    # Retrieve previous customer info if stored in session
-    prev_date = request.session.get("prev_customer_date", "")
+    # Retrieve previous customer info if stored in session (name and address only)
     prev_name = request.session.get("prev_customer_name", "")
-    prev_cert = request.session.get("prev_certificate_id", "")
-    prev_place = request.session.get("prev_customer_place", "")
-    prev_machine = request.session.get("prev_machine_name", "")
+    prev_address = request.session.get("prev_customer_address", "")
 
-    # Check if any previous data exists for prefill
-    has_previous = any([prev_date, prev_name, prev_cert, prev_place, prev_machine])
+    # Check if previous customer data exists for prefill
+    has_previous = any([prev_name, prev_address])
+
+    # Default tool
+    default_tool_name = list(TOOLS_CONFIG.keys())[0]
 
     return templates.TemplateResponse(
         request=request,
         name="parameters.html",
         context={
-            "tests_config": TESTS_CONFIG,
+            "tools_config": TOOLS_CONFIG,
+            "default_tool": default_tool_name,
             "user": user,
             "lang": lang,
             "text": TRANSLATIONS[lang],
-            "prev_date": prev_date,
             "prev_name": prev_name,
-            "prev_cert": prev_cert,
-            "prev_place": prev_place,
-            "prev_machine": prev_machine,
+            "prev_address": prev_address,
             "has_previous": has_previous
         }
     )
@@ -149,20 +147,37 @@ async def submissions_download(request: Request):
 
     # Write dynamic header
     writer.writerow([
-        "Date", "Customer Name", "Certificate ID", "Place", "Machine Name", "Selected Test", "Configuration Parameters"
+        "Customer Name",
+        "Customer Address",
+        "Tool",
+        "Producer",
+        "Model",
+        "Range",
+        "Resolution",
+        "Serial No",
+        "Location of Tool",
+        "Calibration Points (UUC, Rising, Falling)"
     ])
 
     for sub in SUBMITTED_FORMS:
-        # Format config parameters as key=value separated by semicolon for clean csv rendering
-        config_str = "; ".join([f"{k}: {v}" for k, v in sub["config"].items()])
+        # Format calibration points
+        cal_str_list = []
+        for pt in sub.get("calibration_points", []):
+            if pt.get("uuc") or pt.get("ref_rising") or pt.get("ref_falling"):
+                cal_str_list.append(f"UUC:{pt.get('uuc')}|Rising:{pt.get('ref_rising')}|Falling:{pt.get('ref_falling')}")
+        cal_str = "; ".join(cal_str_list)
+
         writer.writerow([
-            sub["customer_date"],
             sub["customer_name"],
-            sub["certificate_id"],
-            sub["customer_place"],
-            sub["machine_name"],
-            sub["selected_test"],
-            config_str
+            sub["customer_address"],
+            sub["selected_tool"],
+            sub["producer_name"],
+            sub["model"],
+            sub["range"],
+            sub["resolution"],
+            sub["serial_no"],
+            sub["tool_location"],
+            cal_str
         ])
 
     output.seek(0)
@@ -170,7 +185,7 @@ async def submissions_download(request: Request):
     return StreamingResponse(
         iter([output.getvalue()]),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=config_submissions.csv"}
+        headers={"Content-Disposition": "attachment; filename=calibrations_submissions.csv"}
     )
 
 @app.get("/submit")
@@ -186,53 +201,64 @@ async def parameters_post(request: Request):
     lang = request.session.get("lang", "en")
     form_data = await request.form()
 
-    # Extract customer info
-    customer_date = form_data.get("customer_date", "")
-    customer_name = form_data.get("customer_name", "")
-    certificate_id = form_data.get("certificate_id", "")
-    customer_place = form_data.get("customer_place", "")
-    machine_name = form_data.get("machine_name", "")
-
-    # Extract test name
-    selected_test = form_data.get("selected_test", "Test A")
+    # Extract customer info (only name and address as requested)
+    customer_name = form_data.get("customer_name", "").strip()
+    customer_address = form_data.get("customer_address", "").strip()
 
     # Store in session for prefill next time
-    request.session["prev_customer_date"] = customer_date
     request.session["prev_customer_name"] = customer_name
-    request.session["prev_certificate_id"] = certificate_id
-    request.session["prev_customer_place"] = customer_place
-    request.session["prev_machine_name"] = machine_name
+    request.session["prev_customer_address"] = customer_address
 
-    # Construct config values dynamically based on selected test's keys
-    submitted_config = {}
-    test_keys = TESTS_CONFIG.get(selected_test, TESTS_CONFIG["Test A"]).keys()
-    for key in test_keys:
-        submitted_config[key] = form_data.get(key, "")
+    # Extract tool and producer info
+    selected_tool = form_data.get("selected_tool", list(TOOLS_CONFIG.keys())[0]).strip()
+    producer_name = form_data.get("producer_name", "").strip()
+
+    # Extract tool specs
+    model = form_data.get("model", "").strip()
+    tool_range = form_data.get("range", "").strip()
+    resolution = form_data.get("resolution", "").strip()
+    serial_no = form_data.get("serial_no", "").strip()
+    tool_location = form_data.get("tool_location", "").strip()
+
+    # Extract calibration table rows (6 rows default)
+    # Unit Under Calibration (mbar), Reference value (mbar): Rising, Falling
+    calibration_points = []
+    # Collect indices from form_data
+    row_count = 6
+    for i in range(row_count):
+        uuc = form_data.get(f"uuc_{i}", "").strip()
+        ref_rising = form_data.get(f"ref_rising_{i}", "").strip()
+        ref_falling = form_data.get(f"ref_falling_{i}", "").strip()
+        if uuc or ref_rising or ref_falling:
+            calibration_points.append({
+                "uuc": uuc,
+                "ref_rising": ref_rising,
+                "ref_falling": ref_falling
+            })
+
+    submission_record = {
+        "customer_name": customer_name,
+        "customer_address": customer_address,
+        "selected_tool": selected_tool,
+        "producer_name": producer_name,
+        "model": model,
+        "range": tool_range,
+        "resolution": resolution,
+        "serial_no": serial_no,
+        "tool_location": tool_location,
+        "calibration_points": calibration_points
+    }
 
     # Save the submission in the global list
-    SUBMITTED_FORMS.append({
-        "customer_date": customer_date,
-        "customer_name": customer_name,
-        "certificate_id": certificate_id,
-        "customer_place": customer_place,
-        "machine_name": machine_name,
-        "selected_test": selected_test,
-        "config": submitted_config
-    })
+    SUBMITTED_FORMS.append(submission_record)
 
     return templates.TemplateResponse(
         request=request,
         name="success.html",
         context={
-            "config": submitted_config,
             "user": user,
             "lang": lang,
             "text": TRANSLATIONS[lang],
-            "selected_test": selected_test,
-            "customer_date": customer_date,
-            "customer_name": customer_name,
-            "certificate_id": certificate_id,
-            "customer_place": customer_place,
-            "machine_name": machine_name
+            "record": submission_record
         }
     )

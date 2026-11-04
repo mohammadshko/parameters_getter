@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
+<div class="max-w-3xl mx-auto">
   <!-- Progress Header -->
   <div class="mb-8">
     <div class="flex justify-between items-center mb-2">
@@ -9,12 +9,12 @@
         {{ text.title }}
       </span>
       <span id="step-badge" class="text-sm font-semibold text-indigo-600">
-        {{ text.step }} 1 {{ text.of }} 3
+        {{ text.step }} 1 {{ text.of }} 5
       </span>
     </div>
     <!-- Progress Bar -->
     <div class="overflow-hidden h-2 text-xs flex rounded bg-indigo-50">
-      <div id="progress-bar" style="width: 10%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-600 transition-all duration-300"></div>
+      <div id="progress-bar" style="width: 20%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-600 transition-all duration-300"></div>
     </div>
   </div>
 
@@ -26,27 +26,27 @@
     </div>
 
     <form id="wizard-form" action="/submit" method="post" class="p-8">
-      <!-- Selected Test Hidden Input -->
-      <input type="hidden" name="selected_test" id="selected-test-input" value="Test A">
+      <!-- Hidden inputs for selections -->
+      <input type="hidden" name="selected_tool" id="selected-tool-input" value="{{ default_tool }}">
 
-      <!-- Step 1: Customer Information (Pane index 0) -->
-      <div class="step-pane" id="pane-customer">
+      <!-- STEP 1: Customer Profile (Name and Address only) -->
+      <div class="step-pane" id="pane-step-1">
         <div class="mb-6">
           <label class="block text-sm font-medium text-slate-700 mb-2">{{ text.customer_section }}</label>
           <p class="text-xs text-slate-500 mb-4">{{ text.customer_section_desc }}</p>
 
           {% if has_previous %}
           <!-- Prefill Option -->
-          <div id="prefill-banner" class="mb-4 p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 flex items-center justify-between {% if lang == 'fa' %}flex-row-reverse{% endif %}">
+          <div id="prefill-banner" class="mb-4 p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 flex items-center justify-between">
             <div class="flex items-center space-x-3 {% if lang == 'fa' %}space-x-reverse{% endif %}">
               <span class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
               </span>
-              <div class="{% if lang == 'fa' %}text-right{% endif %}">
+              <div>
                 <h4 class="text-sm font-semibold text-slate-800">{{ text.prefill_title }}</h4>
-                <p class="text-xs text-slate-500 font-mono">{{ prev_name }} | {{ prev_machine }}</p>
+                <p class="text-xs text-slate-500 font-mono">{{ prev_name }}</p>
               </div>
             </div>
             <button type="button" id="btn-prefill" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors">
@@ -56,93 +56,184 @@
           {% endif %}
 
           <div class="space-y-4">
-            <!-- 1. Date -->
-            <div>
-              <label for="customer_date" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.customer_date }}</label>
-              <input type="text" id="customer_date" name="customer_date" required
-                placeholder="e.g. 2025-07-29"
-                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-            </div>
-            <!-- 2. Customer Name -->
+            <!-- 1. Customer Name -->
             <div>
               <label for="customer_name" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.customer_name }}</label>
               <input type="text" id="customer_name" name="customer_name" required
                 placeholder="e.g. Acme Corporation"
                 class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
             </div>
-            <!-- 3. Certificate ID -->
+            <!-- 2. Customer Address -->
             <div>
-              <label for="certificate_id" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.certificate_id }}</label>
-              <input type="text" id="certificate_id" name="certificate_id" required
-                placeholder="e.g. CERT-99120"
-                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-            </div>
-            <!-- 4. Place -->
-            <div>
-              <label for="customer_place" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.customer_place }}</label>
-              <input type="text" id="customer_place" name="customer_place" required
-                placeholder="e.g. Tehran, Iran"
-                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-            </div>
-            <!-- 5. Machine Name -->
-            <div>
-              <label for="machine_name" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.machine_name }}</label>
-              <input type="text" id="machine_name" name="machine_name" required
-                placeholder="e.g. Laser-Cutter-X1"
-                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+              <label for="customer_address" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.customer_address }}</label>
+              <textarea id="customer_address" name="customer_address" rows="3" required
+                placeholder="e.g. 100 Industrial Parkway, Suite 400"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"></textarea>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Step 2: Test Selection (Pane index 1) -->
-      <div class="step-pane hidden" id="pane-test-select">
+      <!-- STEP 2: Tool Selection -->
+      <div class="step-pane hidden" id="pane-step-2">
         <div class="mb-6">
-          <label class="block text-sm font-medium text-slate-700 mb-2">{{ text.select_test_title }}</label>
-          <p class="text-xs text-slate-500 mb-4">{{ text.select_test_desc }}</p>
+          <label class="block text-sm font-medium text-slate-700 mb-2">{{ text.select_tool_title }}</label>
+          <p class="text-xs text-slate-500 mb-4">{{ text.select_tool_desc }}</p>
 
           <!-- Search Input -->
           <div class="mb-4 relative">
-            <input type="text" id="test-search-input" placeholder="{{ text.search_test_placeholder }}"
+            <input type="text" id="tool-search-input" placeholder="{{ text.search_tool_placeholder }}"
               class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
           </div>
 
           <!-- Selection grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="test-options-list">
-            {% for test_name, params in tests_config.items() %}
-            <button type="button" id="test-card-{{ test_name | replace(' ', '-') }}"
-              class="test-card-btn text-right/left p-5 rounded-xl border-2 border-slate-100 bg-slate-50/50 hover:bg-slate-50 hover:border-indigo-400 transition-all font-semibold"
-              data-test="{{ test_name }}">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="tool-options-list">
+            {% for tool_name, tool_data in tools_config.items() %}
+            <button type="button" id="tool-card-{{ tool_name | replace(' ', '-') }}"
+              class="tool-card-btn text-left rtl:text-right p-5 rounded-xl border-2 border-slate-100 bg-slate-50/50 hover:bg-slate-50 hover:border-indigo-400 transition-all font-semibold"
+              data-tool="{{ tool_name }}">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-bold text-slate-800">{{ test_name }}</span>
-                <span class="test-select-dot h-4 w-4 rounded-full border border-slate-300 bg-white flex items-center justify-center">
+                <span class="text-sm font-bold text-slate-800">{{ tool_name }}</span>
+                <span class="tool-select-dot h-4 w-4 rounded-full border border-slate-300 bg-white flex items-center justify-center">
                   <span class="h-2 w-2 rounded-full bg-indigo-600 hidden"></span>
                 </span>
               </div>
-              <span class="block text-xs font-normal text-slate-400 font-mono text-ellipsis overflow-hidden">
-                {{ params.keys() | list | join(', ') }}
-              </span>
+              <p class="text-xs font-normal text-slate-500 mb-2">{{ tool_data.description }}</p>
+              <div class="flex flex-wrap gap-1">
+                {% for prod in tool_data.producers %}
+                <span class="px-2 py-0.5 text-[10px] bg-indigo-50 text-indigo-700 rounded-md font-medium">{{ prod }}</span>
+                {% endfor %}
+              </div>
             </button>
             {% endfor %}
           </div>
         </div>
       </div>
 
-      <!-- Step 3+: Config Parameters dynamically filtered by selected test -->
-      {% for test_name, params in tests_config.items() %}
-        {% for key, val in params.items() %}
-        <div class="step-pane hidden test-parameter-pane" id="pane-param-{{ test_name | replace(' ', '-') }}-{{ loop.index0 }}" data-test-owner="{{ test_name }}">
-          <div class="mb-6">
-            <label class="block text-xs font-semibold text-indigo-600 tracking-wider mb-2 uppercase">{{ test_name }} &bull; {{ text.selected_test_label }}</label>
-            <label for="input-{{ test_name | replace(' ', '-') }}-{{ loop.index0 }}" class="block text-sm font-semibold text-slate-700 mb-4">
-              {{ text[key] if text[key] else key }}
-            </label>
-            <input type="text" id="input-{{ test_name | replace(' ', '-') }}-{{ loop.index0 }}" name="{{ key }}" value="{{ val }}" required
-              class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-mono">
+      <!-- STEP 3: Producer Selection -->
+      <div class="step-pane hidden" id="pane-step-3">
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-slate-700 mb-2">{{ text.select_producer_title }}</label>
+          <p class="text-xs text-slate-500 mb-4">{{ text.select_producer_desc }}</p>
+
+          <!-- Dynamic producer badges/options -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.producer_label }}</label>
+            <div id="producer-buttons-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <!-- Rendered via JS based on selected tool -->
+            </div>
+            <div>
+              <input type="text" id="producer_name" name="producer_name" required
+                placeholder="{{ text.producer_custom_placeholder }}"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            </div>
           </div>
         </div>
-        {% endfor %}
-      {% endfor %}
+      </div>
+
+      <!-- STEP 4: Tool Specifications (Model, Range, Resolution, Serial No, Location) -->
+      <div class="step-pane hidden" id="pane-step-4">
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-medium text-slate-700">{{ text.tool_specs_title }}</label>
+            <span id="specs-tool-badge" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-600"></span>
+          </div>
+          <p class="text-xs text-slate-500 mb-4">{{ text.tool_specs_desc }}</p>
+
+          <div class="space-y-4">
+            <!-- Model -->
+            <div>
+              <label for="spec-model" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.tool_model }}</label>
+              <input type="text" id="spec-model" name="model" required
+                placeholder="e.g. 213.53"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors font-mono">
+            </div>
+            <!-- Range -->
+            <div>
+              <label for="spec-range" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.tool_range }}</label>
+              <input type="text" id="spec-range" name="range" required
+                placeholder="e.g. 0 - 1000 mbar"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors font-mono">
+            </div>
+            <!-- Resolution -->
+            <div>
+              <label for="spec-resolution" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.tool_resolution }}</label>
+              <input type="text" id="spec-resolution" name="resolution" required
+                placeholder="e.g. 10 mbar"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors font-mono">
+            </div>
+            <!-- Serial No -->
+            <div>
+              <label for="spec-serial" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.tool_serial_no }}</label>
+              <input type="text" id="spec-serial" name="serial_no" required
+                placeholder="e.g. SN-882310"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors font-mono">
+            </div>
+            <!-- Location of Tool -->
+            <div>
+              <label for="spec-location" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.tool_location }}</label>
+              <input type="text" id="spec-location" name="tool_location" required
+                placeholder="e.g. Workshop Lab 2 / Rig 4"
+                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors font-mono">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Calibration Table (image.png layout) -->
+      <div class="step-pane hidden" id="pane-step-5">
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-slate-700 mb-2">{{ text.calibration_table_title }}</label>
+          <p class="text-xs text-slate-500 mb-4">{{ text.calibration_table_desc }}</p>
+
+          <!-- Table matching the user screenshot image.png -->
+          <div class="border border-[#782828]/30 rounded-xl overflow-hidden shadow-sm bg-white">
+            <table class="w-full border-collapse text-sm">
+              <thead>
+                <!-- Top Header Row -->
+                <tr>
+                  <th rowspan="2" class="w-1/3 bg-[#dfb2b2] text-slate-900 font-bold px-4 py-3.5 text-center border-r border-b border-[#a86868] align-middle">
+                    {{ text.table_uuc_header }}
+                  </th>
+                  <th colspan="2" class="w-2/3 bg-[#dfb2b2] text-slate-900 font-bold px-4 py-2.5 text-center border-b border-[#a86868]">
+                    {{ text.table_ref_header }}
+                  </th>
+                </tr>
+                <!-- Sub Header Row for Rising & Falling -->
+                <tr>
+                  <th class="w-1/3 bg-[#eedada] text-slate-900 font-bold px-4 py-2 text-center border-r border-b border-[#c49898]">
+                    {{ text.table_rising }}
+                  </th>
+                  <th class="w-1/3 bg-[#eedada] text-slate-900 font-bold px-4 py-2 text-center border-b border-[#c49898]">
+                    {{ text.table_falling }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="calibration-tbody">
+                {% for i in range(6) %}
+                <tr class="border-b border-black last:border-b-0 hover:bg-slate-50/50">
+                  <td class="border-r border-black p-1 bg-white">
+                    <input type="text" name="uuc_{{ i }}" id="uuc_{{ i }}"
+                      class="w-full text-center px-2 py-2 border-0 focus:ring-1 focus:ring-indigo-500 bg-transparent font-mono text-slate-800 placeholder-slate-300"
+                      placeholder="0.0">
+                  </td>
+                  <td class="border-r border-black p-1 bg-white">
+                    <input type="text" name="ref_rising_{{ i }}" id="ref_rising_{{ i }}"
+                      class="w-full text-center px-2 py-2 border-0 focus:ring-1 focus:ring-indigo-500 bg-transparent font-mono text-slate-800 placeholder-slate-300"
+                      placeholder="0.0">
+                  </td>
+                  <td class="p-1 bg-white">
+                    <input type="text" name="ref_falling_{{ i }}" id="ref_falling_{{ i }}"
+                      class="w-full text-center px-2 py-2 border-0 focus:ring-1 focus:ring-indigo-500 bg-transparent font-mono text-slate-800 placeholder-slate-300"
+                      placeholder="0.0">
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
       <!-- Navigation Actions -->
       <div class="flex items-center justify-between border-t border-slate-100 pt-6 mt-6">
@@ -161,13 +252,13 @@
 </div>
 
 <script>
-  // All configuration variables
-  const testsConfig = {{ tests_config | tojson | safe }};
+  // Configuration data
+  const toolsConfig = {{ tools_config | tojson | safe }};
   const stepWord = "{{ text.step }}";
   const ofWord = "{{ text.of }}";
   const prefilledBtnWord = "{{ text.prefilled_btn }}";
 
-  // Cache elements
+  // Elements
   const backBtn = document.getElementById('back-btn');
   const nextBtn = document.getElementById('next-btn');
   const submitBtn = document.getElementById('submit-btn');
@@ -175,19 +266,38 @@
   const progressBar = document.getElementById('progress-bar');
   const prefillBtn = document.getElementById('btn-prefill');
   const prefillBanner = document.getElementById('prefill-banner');
-  const testSearchInput = document.getElementById('test-search-input');
-  const testCardBtns = document.querySelectorAll('.test-card-btn');
-  const selectedTestInput = document.getElementById('selected-test-input');
+  const toolSearchInput = document.getElementById('tool-search-input');
+  const toolCardBtns = document.querySelectorAll('.tool-card-btn');
+  const selectedToolInput = document.getElementById('selected-tool-input');
+  const producerButtonsContainer = document.getElementById('producer-buttons-container');
+  const producerNameInput = document.getElementById('producer_name');
+  const specsToolBadge = document.getElementById('specs-tool-badge');
 
-  // Set initial selected test
-  let activeTestName = "Test A";
+  // Input spec fields
+  const specModel = document.getElementById('spec-model');
+  const specRange = document.getElementById('spec-range');
+  const specResolution = document.getElementById('spec-resolution');
+  const specSerial = document.getElementById('spec-serial');
+  const specLocation = document.getElementById('spec-location');
 
-  // Handle Search filtering
-  testSearchInput.addEventListener('input', function() {
+  let activeToolName = "{{ default_tool }}";
+  let currentStep = 0;
+  const totalSteps = 5;
+
+  const stepPanes = [
+    document.getElementById('pane-step-1'),
+    document.getElementById('pane-step-2'),
+    document.getElementById('pane-step-3'),
+    document.getElementById('pane-step-4'),
+    document.getElementById('pane-step-5')
+  ];
+
+  // Tool search filter
+  toolSearchInput.addEventListener('input', function() {
     const filter = this.value.toLowerCase();
-    testCardBtns.forEach(btn => {
-      const text = btn.getAttribute('data-test').toLowerCase();
-      if (text.includes(filter)) {
+    toolCardBtns.forEach(btn => {
+      const name = btn.getAttribute('data-tool').toLowerCase();
+      if (name.includes(filter)) {
         btn.classList.remove('hidden');
       } else {
         btn.classList.add('hidden');
@@ -195,47 +305,87 @@
     });
   });
 
-  // Handle Test Card selection
-  testCardBtns.forEach(btn => {
+  // Render producers for current tool
+  function updateProducersForActiveTool() {
+    producerButtonsContainer.innerHTML = '';
+    const toolData = toolsConfig[activeToolName];
+    if (!toolData) return;
+
+    toolData.producers.forEach((producer, index) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'producer-badge-btn p-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold hover:border-indigo-400 hover:bg-indigo-50/50 transition-all text-center';
+      btn.textContent = producer;
+      btn.addEventListener('click', () => {
+        selectProducer(producer, btn);
+      });
+      producerButtonsContainer.appendChild(btn);
+
+      // Select first producer by default
+      if (index === 0 && !producerNameInput.value) {
+        selectProducer(producer, btn);
+      }
+    });
+
+    // Populate default specs if not manually edited yet or when switching tool
+    if (toolData.default_specs) {
+      specModel.value = toolData.default_specs.model || '';
+      specRange.value = toolData.default_specs.range || '';
+      specResolution.value = toolData.default_specs.resolution || '';
+      specSerial.value = toolData.default_specs.serial_no || '';
+      specLocation.value = toolData.default_specs.location || '';
+    }
+
+    if (specsToolBadge) {
+      specsToolBadge.textContent = activeToolName;
+    }
+  }
+
+  function selectProducer(name, targetBtn) {
+    producerNameInput.value = name;
+    document.querySelectorAll('.producer-badge-btn').forEach(btn => {
+      btn.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-700');
+      btn.classList.add('border-slate-200', 'bg-slate-50', 'text-slate-800');
+    });
+    if (targetBtn) {
+      targetBtn.classList.remove('border-slate-200', 'bg-slate-50', 'text-slate-800');
+      targetBtn.classList.add('border-indigo-600', 'bg-indigo-50', 'text-indigo-700');
+    }
+  }
+
+  // Handle Tool Card click
+  toolCardBtns.forEach(btn => {
     btn.addEventListener('click', function() {
-      // De-select all cards
-      testCardBtns.forEach(b => {
+      toolCardBtns.forEach(b => {
         b.classList.remove('border-indigo-600', 'bg-indigo-50/50');
         b.classList.add('border-slate-100', 'bg-slate-50/50');
-        b.querySelector('.test-select-dot span').classList.add('hidden');
+        b.querySelector('.tool-select-dot span').classList.add('hidden');
       });
-      // Select this card
       this.classList.add('border-indigo-600', 'bg-indigo-50/50');
       this.classList.remove('border-slate-100', 'bg-slate-50/50');
-      this.querySelector('.test-select-dot span').classList.remove('hidden');
+      this.querySelector('.tool-select-dot span').classList.remove('hidden');
 
-      activeTestName = this.getAttribute('data-test');
-      selectedTestInput.value = activeTestName;
+      activeToolName = this.getAttribute('data-tool');
+      selectedToolInput.value = activeToolName;
+      updateProducersForActiveTool();
     });
   });
 
-  // Pre-select the default "Test A" card initially
-  const defaultCard = document.getElementById('test-card-Test-A');
-  if (defaultCard) {
-    defaultCard.click();
+  // Select initial tool card
+  const initialCard = document.querySelector(`.tool-card-btn[data-tool="${activeToolName}"]`);
+  if (initialCard) {
+    initialCard.click();
   }
 
-  // Set previous values from server session for customer details prefill
-  const prevDateValue = "{{ prev_date | safe }}";
+  // Prefill handler (only customer name and address)
   const prevNameValue = "{{ prev_name | safe }}";
-  const prevCertValue = "{{ prev_cert | safe }}";
-  const prevPlaceValue = "{{ prev_place | safe }}";
-  const prevMachineValue = "{{ prev_machine | safe }}";
+  const prevAddressValue = "{{ prev_address | safe }}";
 
   if (prefillBtn) {
     prefillBtn.addEventListener('click', () => {
-      document.getElementById('customer_date').value = prevDateValue;
       document.getElementById('customer_name').value = prevNameValue;
-      document.getElementById('certificate_id').value = prevCertValue;
-      document.getElementById('customer_place').value = prevPlaceValue;
-      document.getElementById('machine_name').value = prevMachineValue;
+      document.getElementById('customer_address').value = prevAddressValue;
 
-      // Add visual success flair
       prefillBanner.classList.add('bg-emerald-50', 'border-emerald-200');
       prefillBanner.classList.remove('bg-indigo-50/50', 'border-indigo-100');
       prefillBtn.textContent = prefilledBtnWord;
@@ -244,29 +394,9 @@
     });
   }
 
-  // Active steps calculation based on the selected Test Configuration
-  let currentActiveStepIndex = 0;
-  let activePanesList = [];
-
-  function buildActivePanes() {
-    activePanesList = [];
-
-    // Step 1 is always customer info
-    activePanesList.push(document.getElementById('pane-customer'));
-
-    // Step 2 is always test selection
-    activePanesList.push(document.getElementById('pane-test-select'));
-
-    // Remaining steps are only parameters for the active test configuration
-    const escapedTestName = activeTestName.replace(' ', '-');
-    const paramPanes = document.querySelectorAll(`.test-parameter-pane[data-test-owner="${activeTestName}"]`);
-    paramPanes.forEach(pane => {
-      activePanesList.push(pane);
-    });
-  }
-
-  function validatePane(pane) {
-    const inputs = pane.querySelectorAll('input[required]');
+  function validateCurrentStep() {
+    const pane = stepPanes[currentStep];
+    const inputs = pane.querySelectorAll('input[required], textarea[required]');
     let isValid = true;
     inputs.forEach(input => {
       if (!input.value.trim() || !input.checkValidity()) {
@@ -278,21 +408,35 @@
         input.classList.add('border-slate-200');
       }
     });
+
+    // In step 5, ensure at least one calibration row is filled
+    if (currentStep === 4) {
+      let hasAtLeastOne = false;
+      for (let i = 0; i < 6; i++) {
+        const uuc = document.getElementById(`uuc_${i}`).value.trim();
+        const ref_rising = document.getElementById(`ref_rising_${i}`).value.trim();
+        const ref_falling = document.getElementById(`ref_falling_${i}`).value.trim();
+        if (uuc || ref_rising || ref_falling) {
+          hasAtLeastOne = true;
+          break;
+        }
+      }
+      if (!hasAtLeastOne) {
+        // Default first row if empty
+        document.getElementById('uuc_0').value = '0';
+        document.getElementById('ref_rising_0').value = '0.0';
+        document.getElementById('ref_falling_0').value = '0.0';
+      }
+    }
+
     return isValid;
   }
 
   function updateWizard() {
-    // Hide all step panes first
-    document.querySelectorAll('.step-pane').forEach(pane => pane.classList.add('hidden'));
+    stepPanes.forEach(pane => pane.classList.add('hidden'));
+    stepPanes[currentStep].classList.remove('hidden');
 
-    // Show only the active pane for current step index
-    const currentPane = activePanesList[currentActiveStepIndex];
-    if (currentPane) {
-      currentPane.classList.remove('hidden');
-    }
-
-    // Set enabled/disabled state for Back button
-    if (currentActiveStepIndex === 0) {
+    if (currentStep === 0) {
       backBtn.disabled = true;
       backBtn.classList.add('opacity-50', 'cursor-not-allowed');
     } else {
@@ -300,8 +444,7 @@
       backBtn.classList.remove('opacity-50', 'cursor-not-allowed');
     }
 
-    // Toggle next and submit buttons
-    if (currentActiveStepIndex === activePanesList.length - 1) {
+    if (currentStep === totalSteps - 1) {
       nextBtn.classList.add('hidden');
       submitBtn.classList.remove('hidden');
     } else {
@@ -309,48 +452,35 @@
       submitBtn.classList.add('hidden');
     }
 
-    // Update progress numbers
-    stepBadge.textContent = `${stepWord} ${currentActiveStepIndex + 1} ${ofWord} ${activePanesList.length}`;
-    const progressPercent = ((currentActiveStepIndex + 1) / activePanesList.length) * 100;
+    stepBadge.textContent = `${stepWord} ${currentStep + 1} ${ofWord} ${totalSteps}`;
+    const progressPercent = ((currentStep + 1) / totalSteps) * 100;
     progressBar.style.width = `${progressPercent}%`;
   }
 
-  // Event handler for Next navigation
   nextBtn.addEventListener('click', () => {
-    // 1. Build list of active panes (in case user changed test on step 2)
-    buildActivePanes();
-
-    const currentPane = activePanesList[currentActiveStepIndex];
-    if (validatePane(currentPane)) {
-      if (currentActiveStepIndex < activePanesList.length - 1) {
-        currentActiveStepIndex++;
+    if (validateCurrentStep()) {
+      if (currentStep < totalSteps - 1) {
+        currentStep++;
         updateWizard();
       }
     }
   });
 
-  // Event handler for Back navigation
   backBtn.addEventListener('click', () => {
-    buildActivePanes();
-    if (currentActiveStepIndex > 0) {
-      currentActiveStepIndex--;
+    if (currentStep > 0) {
+      currentStep--;
       updateWizard();
     }
   });
 
-  // Initialize active list of wizard steps
-  buildActivePanes();
   updateWizard();
 
-  // Enable navigation by hitting Enter key
+  // Enter key support
   document.getElementById('wizard-form').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const activeEl = document.activeElement;
-      if (activeEl && activeEl.tagName === 'INPUT') {
-        e.preventDefault();
-        if (currentActiveStepIndex < activePanesList.length - 1) {
-          nextBtn.click();
-        }
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      if (currentStep < totalSteps - 1) {
+        nextBtn.click();
       }
     }
   });
