@@ -167,13 +167,13 @@
 </div>
 <script>
   function buildExcelGrid(submission) {
-    // Copy measurement rows only; omit headers and all certificate metadata.
-    // Column order matches the on-screen table: UUC, Reference Rising, Reference Falling.
+    // Match the Excel calibration table column order: Falling, Rising, UUC.
+    // Copy measurement rows only; omit headers and certificate metadata.
     return (submission.calibration_points || [])
       .map((point) => [
-        point.uuc ?? '',
+        point.ref_falling ?? '',
         point.ref_rising ?? '',
-        point.ref_falling ?? ''
+        point.uuc ?? ''
       ].map((value) => String(value ?? '').replace(/[\t\r\n]+/g, ' ')).join('\t'))
       .join('\n');
   }
