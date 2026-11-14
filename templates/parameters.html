@@ -192,6 +192,7 @@
               <thead>
                 <!-- Top Header Row -->
                 <tr>
+                  <th rowspan="2" class="w-12 bg-[#dfb2b2] text-slate-900 font-bold px-2 py-3.5 text-center border-r border-b border-[#a86868] align-middle">#</th>
                   <th rowspan="2" class="w-1/3 bg-[#dfb2b2] text-slate-900 font-bold px-4 py-3.5 text-center border-r border-b border-[#a86868] align-middle">
                     {{ text.table_uuc_header }}
                   </th>
@@ -212,6 +213,7 @@
               <tbody id="calibration-tbody">
                 {% for i in range(6) %}
                 <tr class="border-b border-black last:border-b-0 hover:bg-slate-50/50">
+                  <td class="border-r border-black p-1 bg-slate-50 text-center font-semibold text-slate-500">{{ i + 1 }}</td>
                   <td class="border-r border-black p-1 bg-white">
                     <input type="text" name="uuc_{{ i }}" id="uuc_{{ i }}"
                       class="w-full text-center px-2 py-2 border-0 focus:ring-1 focus:ring-indigo-500 bg-transparent font-mono text-slate-800 placeholder-slate-300"
