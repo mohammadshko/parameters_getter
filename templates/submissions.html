@@ -87,11 +87,36 @@
             <!-- Tool Specs -->
             <td class="px-6 py-4 text-xs text-slate-600">
               <div class="flex flex-col gap-1">
-                <div><span class="text-slate-400">{{ text.tool_model }}:</span> <span class="font-mono font-medium">{{ sub.model }}</span></div>
-                <div><span class="text-slate-400">{{ text.tool_range }}:</span> <span class="font-mono font-medium">{{ sub.range }}</span></div>
-                <div><span class="text-slate-400">{{ text.tool_resolution }}:</span> <span class="font-mono font-medium">{{ sub.resolution }}</span></div>
-                <div><span class="text-slate-400">{{ text.tool_serial_no }}:</span> <span class="font-mono font-medium">{{ sub.serial_no }}</span></div>
-                <div><span class="text-slate-400">{{ text.tool_location }}:</span> <span class="font-medium">{{ sub.tool_location }}</span></div>
+                <div class="flex items-center gap-2">
+                  <span><span class="text-slate-400">{{ text.tool_model }}:</span> <span class="font-mono font-medium">{{ sub.model }}</span></span>
+                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.model | e }}" title="Copy model" aria-label="Copy model">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
+                  </button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span><span class="text-slate-400">{{ text.tool_range }}:</span> <span class="font-mono font-medium">{{ sub.range }}</span></span>
+                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.range | e }}" title="Copy range" aria-label="Copy range">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
+                  </button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span><span class="text-slate-400">{{ text.tool_resolution }}:</span> <span class="font-mono font-medium">{{ sub.resolution }}</span></span>
+                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.resolution | e }}" title="Copy resolution" aria-label="Copy resolution">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
+                  </button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span><span class="text-slate-400">{{ text.tool_serial_no }}:</span> <span class="font-mono font-medium">{{ sub.serial_no }}</span></span>
+                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.serial_no | e }}" title="Copy serial number" aria-label="Copy serial number">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
+                  </button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span><span class="text-slate-400">{{ text.tool_location }}:</span> <span class="font-medium">{{ sub.tool_location }}</span></span>
+                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.tool_location | e }}" title="Copy location" aria-label="Copy location">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
+                  </button>
+                </div>
               </div>
             </td>
             <!-- Calibration Points -->
@@ -190,6 +215,42 @@
 
   document.querySelectorAll('.copy-submission-row-btn').forEach((button) => {
     button.addEventListener('click', () => copySubmissionExcel(button));
+  });
+
+  async function copyTextToClipboard(value) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+
+    const temporaryTextarea = document.createElement('textarea');
+    temporaryTextarea.value = value;
+    temporaryTextarea.setAttribute('readonly', '');
+    temporaryTextarea.style.position = 'fixed';
+    temporaryTextarea.style.opacity = '0';
+    document.body.appendChild(temporaryTextarea);
+    temporaryTextarea.select();
+    const copied = document.execCommand('copy');
+    temporaryTextarea.remove();
+    if (!copied) throw new Error('Clipboard copy was not successful');
+  }
+
+  document.querySelectorAll('.copy-spec-btn').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const originalTitle = button.title;
+      try {
+        await copyTextToClipboard(button.dataset.copyValue || '');
+        button.title = 'Copied!';
+        button.classList.add('text-emerald-600');
+      } catch (error) {
+        console.error('Unable to copy specification:', error);
+        button.title = 'Copy failed';
+      }
+      setTimeout(() => {
+        button.title = originalTitle;
+        button.classList.remove('text-emerald-600');
+      }, 1500);
+    });
   });
 </script>
 
