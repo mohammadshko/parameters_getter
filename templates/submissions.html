@@ -142,15 +142,15 @@
 </div>
 <script>
   function buildExcelGrid(submission) {
-    // Copy only measurement rows, without headers or certificate metadata.
-    // Column order matches the on-screen calibration table: UUC, Rising, Falling.
+    // Copy measurement rows only; omit headers and all certificate metadata.
+    // Column order matches the on-screen table: UUC, Reference Rising, Reference Falling.
     return (submission.calibration_points || [])
       .map((point) => [
         point.uuc ?? '',
         point.ref_rising ?? '',
         point.ref_falling ?? ''
-      ].map((value) => String(value).replace(/[\\t\\r\\n]+/g, ' ')).join('\\t'))
-      .join('\\n');
+      ].map((value) => String(value ?? '').replace(/[\t\r\n]+/g, ' ')).join('\t'))
+      .join('\n');
   }
 
   async function copySubmissionExcel(button) {
