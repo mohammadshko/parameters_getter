@@ -121,9 +121,9 @@
               <button
                 type="button"
                 class="copy-submission-row-btn group inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-600 shadow-sm transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                data-json='{{ sub | tojson | forceescape }}'
-                title="Copy this submission as JSON"
-                aria-label="Copy this submission as JSON">
+                data-submission='{{ sub | tojson | forceescape }}'
+                title="Copy this submission into the Excel calibration template"
+                aria-label="Copy this submission into the Excel calibration template">
                 <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3" />
@@ -141,17 +141,76 @@
 
 </div>
 <script>
-  async function copySubmissionJson(button) {
+  function buildExcelGrid(submission) {
+    const cells = {};
+
+    const setCell = (coordinate, value) => {
+      if (value !== null && value !== undefined && String(value).trim() !== '') {
+        cells[coordinate] = String(value);
+      }
+    };
+
+    // Metadata cells in the supplied calibration certificate template.
+    setCell('D5', submission.customer_name);
+    setCell('D6', submission.customer_address);
+    setCell('D7', submission.selected_tool);
+    setCell('D8', submission.producer_name);
+    setCell('F9', submission.model);
+    setCell('D11', submission.resolution);
+    setCell('D12', submission.serial_no);
+    setCell('D13', submission.tool_location);
+
+    // The template stores the upper and lower range limits separately,
+    // with the unit in D10. The form currently accepts a single range string.
+    const range = String(submission.range || '').trim();
+    const rangeMatch = range.match(/^\\s*([+-]?(?:\\d+(?:[.,]\\d*)?|[.,]\\d+))\\s*(?:-|–|—|to)\\s*([+-]?(?:\\d+(?:[.,]\\d*)?|[.,]\\d+))\\s*(.*?)\\s*$/i);
+    if (rangeMatch) {
+      setCell('G10', rangeMatch[1]);
+      setCell('E10', rangeMatch[2]);
+      setCell('D10', rangeMatch[3]);
+    } else {
+      // Preserve an unrecognized range exactly rather than guessing its limits.
+      setCell('E10', range);
+    }
+
+    // Excel template columns: P = reference falling, Q = reference rising,
+    // R = unit under calibration. The six form rows map to worksheet rows 8–13.
+    (submission.calibration_points || []).slice(0, 6).forEach((point, index) => {
+      const row = index + 8;
+      setCell(`P${row}`, point.ref_falling);
+      setCell(`Q${row}`, point.ref_rising);
+      setCell(`R${row}`, point.uuc);
+    });
+
+    const coordinates = Object.keys(cells).map((coordinate) => {
+      const match = coordinate.match(/^([A-Z]+)(\\d+)$/);
+      let column = 0;
+      for (const char of match[1]) column = column * 26 + char.charCodeAt(0) - 64;
+      return { row: Number(match[2]), column, value: cells[coordinate] };
+    });
+
+    const maxRow = Math.max(...coordinates.map((cell) => cell.row));
+    const maxColumn = Math.max(...coordinates.map((cell) => cell.column));
+    const grid = Array.from({ length: maxRow }, () => Array(maxColumn).fill(''));
+
+    coordinates.forEach(({ row, column, value }) => {
+      grid[row - 1][column - 1] = value;
+    });
+
+    return grid.map((row) => row.join('\\t')).join('\\n');
+  }
+
+  async function copySubmissionExcel(button) {
     const originalContent = button.innerHTML;
 
     try {
-      const jsonData = JSON.stringify(JSON.parse(button.dataset.json), null, 2);
+      const excelData = buildExcelGrid(JSON.parse(button.dataset.submission));
 
       if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(jsonData);
+        await navigator.clipboard.writeText(excelData);
       } else {
         const temporaryTextarea = document.createElement('textarea');
-        temporaryTextarea.value = jsonData;
+        temporaryTextarea.value = excelData;
         temporaryTextarea.setAttribute('readonly', '');
         temporaryTextarea.style.position = 'fixed';
         temporaryTextarea.style.opacity = '0';
@@ -166,7 +225,7 @@
       button.innerHTML = '<span class="text-emerald-600">Copied!</span>';
       button.classList.add('border-emerald-200', 'bg-emerald-50');
     } catch (error) {
-      console.error('Unable to copy submission JSON:', error);
+      console.error('Unable to copy submission data for Excel:', error);
       button.innerHTML = '<span class="text-rose-600">Copy failed</span>';
     }
 
@@ -177,7 +236,7 @@
   }
 
   document.querySelectorAll('.copy-submission-row-btn').forEach((button) => {
-    button.addEventListener('click', () => copySubmissionJson(button));
+    button.addEventListener('click', () => copySubmissionExcel(button));
   });
 </script>
 
