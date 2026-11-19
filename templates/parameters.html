@@ -513,7 +513,10 @@
     existingWorkSearchWrap.classList.toggle('hidden', mode !== 'existing');
     newWorkHint.classList.toggle('hidden', mode !== 'new');
   }
-  newWorkModeBtn.addEventListener('click', () => setWorkMode('new'));
+  newWorkModeBtn.addEventListener('click', () => {
+    setWorkMode('new');
+    nextBtn.click();
+  });
   existingWorkModeBtn.addEventListener('click', () => setWorkMode('existing'));
   const requestedWorkId = new URLSearchParams(window.location.search).get('work_id');
   if (requestedWorkId) {
