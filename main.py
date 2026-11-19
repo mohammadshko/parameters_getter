@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
 # Import modularized translation catalogs and tools configuration from constants file
-from constants import TRANSLATIONS, TOOLS_CONFIG
+from constants import TRANSLATIONS, TOOLS_CONFIG, TOOL_CATEGORIES
 
 app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
 
@@ -103,6 +103,7 @@ async def parameters_get(request: Request):
         name="parameters.html",
         context={
             "tools_config": TOOLS_CONFIG,
+            "tool_categories": TOOL_CATEGORIES,
             "default_tool": default_tool_name,
             "user": user,
             "lang": lang,
