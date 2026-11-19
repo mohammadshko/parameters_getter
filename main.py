@@ -1,6 +1,7 @@
 import os
 import json
 import tempfile
+import secrets
 from fastapi import FastAPI, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -10,8 +11,8 @@ from starlette.middleware.sessions import SessionMiddleware
 from constants import TRANSLATIONS, TOOLS_CONFIG, TOOL_CATEGORIES
 from database import init_db, engine
 from sqlalchemy import select
-from sqlalchemy.orm import Session
-from models import Customer
+from sqlalchemy.orm import Session, selectinload
+from models import Customer, WorkOrder, ToolConfiguration
 
 app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
 
@@ -208,6 +209,80 @@ def search_customers(request: Request, q: str = ""):
         ]
 
 
+@app.get("/work-orders/search")
+def search_work_orders(request: Request, q: str = ""):
+    if not get_current_user(request):
+        return JSONResponse({"error": "احراز هویت الزامی است"}, status_code=401)
+    query = q.strip()
+    if len(query) < 2:
+        return []
+    with Session(engine) as db:
+        orders = db.scalars(
+            select(WorkOrder).options(selectinload(WorkOrder.customer))
+            .where(WorkOrder.work_id.ilike(f"%{query}%"))
+            .order_by(WorkOrder.created_at.desc()).limit(20)
+        ).all()
+        return [{
+            "work_id": order.work_id,
+            "customer_id": order.customer_id,
+            "customer_name": order.customer.name,
+            "customer_address": order.customer.address or "",
+            "tool_count": len(order.tools),
+        } for order in orders]
+
+
+@app.post("/work-orders")
+async def create_work_order(request: Request):
+    if not get_current_user(request):
+        return JSONResponse({"error": "احراز هویت الزامی است"}, status_code=401)
+    try:
+        payload = await request.json()
+        customer_id = int(payload.get("customer_id"))
+    except (TypeError, ValueError, AttributeError):
+        return JSONResponse({"error": "مشتری معتبر انتخاب نشده است"}, status_code=400)
+
+    with Session(engine) as db:
+        customer = db.get(Customer, customer_id)
+        if customer is None:
+            return JSONResponse({"error": "مشتری یافت نشد"}, status_code=404)
+        while True:
+            work_id = "WK-" + secrets.token_hex(4).upper()
+            if not db.scalar(select(WorkOrder.id).where(WorkOrder.work_id == work_id)):
+                break
+        order = WorkOrder(work_id=work_id, customer_id=customer.id)
+        db.add(order)
+        db.commit()
+        return {"work_id": order.work_id, "customer_id": customer.id, "customer_name": customer.name}
+
+
+@app.get("/work-orders/{work_id}", response_class=HTMLResponse)
+def work_order_detail(request: Request, work_id: str):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    with Session(engine) as db:
+        order = db.scalar(
+            select(WorkOrder).options(
+                selectinload(WorkOrder.customer), selectinload(WorkOrder.tools)
+            ).where(WorkOrder.work_id == work_id)
+        )
+        if order is None:
+            return RedirectResponse(url="/submissions", status_code=status.HTTP_303_SEE_OTHER)
+        tools = [{
+            "id": tool.id, "selected_tool": tool.selected_tool, "producer_name": tool.producer_name,
+            "model": tool.model, "range": tool.tool_range, "resolution": tool.resolution,
+            "serial_no": tool.serial_no, "tool_location": tool.tool_location,
+            "calibration_points": tool.calibration_points or [],
+        } for tool in order.tools]
+        context = {
+            "user": user, "lang": "fa", "text": TRANSLATIONS["fa"],
+            "work_order": {"work_id": order.work_id, "customer_name": order.customer.name,
+                           "customer_address": order.customer.address or ""},
+            "tools": tools,
+        }
+    return templates.TemplateResponse(request=request, name="work_order_detail.html", context=context)
+
+
 @app.post("/producers")
 async def add_producer(request: Request):
     user = get_current_user(request)
@@ -230,16 +305,23 @@ async def submissions_get(request: Request):
     if not user:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    lang = "fa"
+    with Session(engine) as db:
+        orders = db.scalars(
+            select(WorkOrder).options(
+                selectinload(WorkOrder.customer), selectinload(WorkOrder.tools)
+            ).order_by(WorkOrder.created_at.desc())
+        ).all()
+        work_orders = [{
+            "work_id": order.work_id,
+            "customer_name": order.customer.name,
+            "customer_address": order.customer.address or "",
+            "tool_count": len(order.tools),
+            "created_at": order.created_at,
+        } for order in orders]
+
     return templates.TemplateResponse(
-        request=request,
-        name="submissions.html",
-        context={
-            "user": user,
-            "lang": lang,
-            "text": TRANSLATIONS["fa"],
-            "submissions": SUBMITTED_FORMS
-        }
+        request=request, name="submissions.html",
+        context={"user": user, "lang": "fa", "text": TRANSLATIONS["fa"], "submissions": work_orders}
     )
 
 @app.get("/submissions/download")
@@ -312,21 +394,20 @@ async def parameters_post(request: Request):
     lang = "fa"
     form_data = await request.form()
 
-    # Resolve the selected customer from PostgreSQL; do not trust posted details.
-    customer_id_raw = form_data.get("customer_id", "").strip()
-    if not customer_id_raw.isdigit():
-        return JSONResponse({"error": "لطفاً یک مشتری را از فهرست انتخاب کنید"}, status_code=400)
+    work_id = form_data.get("work_id", "").strip()
+    if not work_id:
+        return JSONResponse({"error": "شناسه پرونده الزامی است"}, status_code=400)
 
     with Session(engine) as db:
-        customer = db.get(Customer, int(customer_id_raw))
-        if customer is None:
-            return JSONResponse({"error": "مشتری انتخاب‌شده یافت نشد"}, status_code=404)
-        customer_name = customer.name
-        customer_address = customer.address or ""
-        customer_id = customer.id
-
-    request.session["prev_customer_name"] = customer_name
-    request.session["prev_customer_address"] = customer_address
+        order = db.scalar(
+            select(WorkOrder).options(selectinload(WorkOrder.customer))
+            .where(WorkOrder.work_id == work_id)
+        )
+        if order is None:
+            return JSONResponse({"error": "پرونده کاری یافت نشد"}, status_code=404)
+        customer_name = order.customer.name
+        customer_address = order.customer.address or ""
+        customer_id = order.customer_id
 
     # Extract tool and producer info
     selected_tool = form_data.get("selected_tool", list(TOOLS_CONFIG.keys())[0]).strip()
@@ -359,6 +440,7 @@ async def parameters_post(request: Request):
         "customer_id": customer_id,
         "customer_name": customer_name,
         "customer_address": customer_address,
+        "work_id": work_id,
         "selected_tool": selected_tool,
         "producer_name": producer_name,
         "model": model,
@@ -369,8 +451,16 @@ async def parameters_post(request: Request):
         "calibration_points": calibration_points
     }
 
-    # Save the submission in the global list
-    SUBMITTED_FORMS.append(submission_record)
+    with Session(engine) as db:
+        order = db.scalar(select(WorkOrder).where(WorkOrder.work_id == work_id))
+        if order is None or order.customer_id != customer_id:
+            return JSONResponse({"error": "پرونده کاری معتبر نیست"}, status_code=400)
+        db.add(ToolConfiguration(
+            work_order_id=order.id, selected_tool=selected_tool, producer_name=producer_name,
+            model=model, tool_range=tool_range, resolution=resolution, serial_no=serial_no,
+            tool_location=tool_location, calibration_points=calibration_points
+        ))
+        db.commit()
 
     return templates.TemplateResponse(
         request=request,
