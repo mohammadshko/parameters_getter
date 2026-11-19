@@ -224,6 +224,7 @@ def search_work_orders(request: Request, q: str = ""):
         ).all()
         return [{
             "work_id": order.work_id,
+            "work_name": order.work_name or "",
             "customer_id": order.customer_id,
             "customer_name": order.customer.name,
             "customer_address": order.customer.address or "",
@@ -238,8 +239,13 @@ async def create_work_order(request: Request):
     try:
         payload = await request.json()
         customer_id = int(payload.get("customer_id"))
+        work_name = str(payload.get("work_name", "")).strip()
+        if not work_name:
+            return JSONResponse({"error": "نام پرونده کاری الزامی است"}, status_code=400)
+        if len(work_name) > 255:
+            return JSONResponse({"error": "نام پرونده نباید بیشتر از ۲۵۵ نویسه باشد"}, status_code=400)
     except (TypeError, ValueError, AttributeError):
-        return JSONResponse({"error": "مشتری معتبر انتخاب نشده است"}, status_code=400)
+        return JSONResponse({"error": "اطلاعات پرونده یا مشتری معتبر نیست"}, status_code=400)
 
     with Session(engine) as db:
         customer = db.get(Customer, customer_id)
@@ -249,13 +255,14 @@ async def create_work_order(request: Request):
         # the database-generated auto-incrementing primary key.
         order = WorkOrder(
             work_id="PENDING-" + secrets.token_hex(8).upper(),
+            work_name=work_name,
             customer_id=customer.id
         )
         db.add(order)
         db.flush()
         order.work_id = str(order.id)
         db.commit()
-        return {"work_id": order.work_id, "customer_id": customer.id, "customer_name": customer.name}
+        return {"work_id": order.work_id, "work_name": order.work_name, "customer_id": customer.id, "customer_name": customer.name}
 
 
 @app.get("/work-orders/{work_id}", response_class=HTMLResponse)
@@ -279,7 +286,7 @@ def work_order_detail(request: Request, work_id: str):
         } for tool in order.tools]
         context = {
             "user": user, "lang": "fa", "text": TRANSLATIONS["fa"],
-            "work_order": {"work_id": order.work_id, "customer_name": order.customer.name,
+            "work_order": {"work_id": order.work_id, "work_name": order.work_name or "", "customer_name": order.customer.name,
                            "customer_address": order.customer.address or ""},
             "tools": tools,
         }
@@ -316,6 +323,7 @@ async def submissions_get(request: Request):
         ).all()
         work_orders = [{
             "work_id": order.work_id,
+            "work_name": order.work_name or "",
             "customer_name": order.customer.name,
             "customer_address": order.customer.address or "",
             "tool_count": len(order.tools),
