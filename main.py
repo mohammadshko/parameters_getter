@@ -8,7 +8,10 @@ from starlette.middleware.sessions import SessionMiddleware
 
 # Import modularized translation catalogs and tools configuration from constants file
 from constants import TRANSLATIONS, TOOLS_CONFIG, TOOL_CATEGORIES
-from database import init_db
+from database import init_db, engine
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+from models import Customer
 
 app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
 
@@ -174,6 +177,37 @@ async def parameters_get(request: Request):
     )
 
 
+@app.get("/customers/search")
+def search_customers(request: Request, q: str = ""):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"error": "احراز هویت الزامی است"}, status_code=401)
+
+    query = q.strip()
+    if len(query) < 2:
+        return []
+
+    with Session(engine) as db:
+        customers = db.scalars(
+            select(Customer)
+            .where(Customer.name.ilike(f"%{query}%"))
+            .order_by(Customer.name)
+            .limit(20)
+        ).all()
+        return [
+            {
+                "id": customer.id,
+                "name": customer.name,
+                "description": customer.description,
+                "national_id": customer.national_id,
+                "postal_id": customer.postal_id,
+                "address": customer.address,
+                "phone_number": customer.phone_number,
+            }
+            for customer in customers
+        ]
+
+
 @app.post("/producers")
 async def add_producer(request: Request):
     user = get_current_user(request)
@@ -278,11 +312,19 @@ async def parameters_post(request: Request):
     lang = "fa"
     form_data = await request.form()
 
-    # Extract customer info (only name and address as requested)
-    customer_name = form_data.get("customer_name", "").strip()
-    customer_address = form_data.get("customer_address", "").strip()
+    # Resolve the selected customer from PostgreSQL; do not trust posted details.
+    customer_id_raw = form_data.get("customer_id", "").strip()
+    if not customer_id_raw.isdigit():
+        return JSONResponse({"error": "لطفاً یک مشتری را از فهرست انتخاب کنید"}, status_code=400)
 
-    # Store in session for prefill next time
+    with Session(engine) as db:
+        customer = db.get(Customer, int(customer_id_raw))
+        if customer is None:
+            return JSONResponse({"error": "مشتری انتخاب‌شده یافت نشد"}, status_code=404)
+        customer_name = customer.name
+        customer_address = customer.address or ""
+        customer_id = customer.id
+
     request.session["prev_customer_name"] = customer_name
     request.session["prev_customer_address"] = customer_address
 
@@ -314,6 +356,7 @@ async def parameters_post(request: Request):
             })
 
     submission_record = {
+        "customer_id": customer_id,
         "customer_name": customer_name,
         "customer_address": customer_address,
         "selected_tool": selected_tool,
