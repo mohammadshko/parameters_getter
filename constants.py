@@ -42,7 +42,10 @@ TRANSLATIONS = {
         "select_producer_title": "Select Tool Producer",
         "select_producer_desc": "Select the producer/manufacturer for this tool or enter custom manufacturer.",
         "producer_label": "Producer Name",
-        "producer_custom_placeholder": "Or enter producer name...",
+        "producer_custom_placeholder": "Enter a new producer name...",
+        "add_producer": "Add Tool Producer",
+        "producer_saved": "Producer saved permanently.",
+        "producer_save_error": "Could not save producer. Please try again.",
         # Tool Specifications
         "tool_specs_title": "Tool Specifications",
         "tool_specs_desc": "Fill in the model, range, resolution, serial number, and location.",
@@ -115,7 +118,10 @@ TRANSLATIONS = {
         "select_producer_title": "انتخاب سازنده ابزار",
         "select_producer_desc": "سازنده / تولیدکننده ابزار را انتخاب کرده یا نام آن را وارد کنید.",
         "producer_label": "نام سازنده (تولیدکننده)",
-        "producer_custom_placeholder": "یا نام سازنده را وارد کنید...",
+        "producer_custom_placeholder": "نام سازنده جدید را وارد کنید...",
+        "add_producer": "افزودن سازنده ابزار",
+        "producer_saved": "سازنده با موفقیت ذخیره شد.",
+        "producer_save_error": "ذخیره سازنده انجام نشد. دوباره تلاش کنید.",
         # Tool Specifications
         "tool_specs_title": "مشخصات فنی ابزار",
         "tool_specs_desc": "مدل، گستره (Range)، تفکیک‌پذیری (Resolution)، شماره سریال و محل ابزار را وارد نمایید.",
