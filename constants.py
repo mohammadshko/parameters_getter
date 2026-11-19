@@ -1,81 +1,5 @@
-# Translation Catalog for English and Persian (RTL support included)
+# Persian translation catalog (RTL).
 TRANSLATIONS = {
-    "en": {
-        "title": "ConfigFlow",
-        "login_title": "Sign in to your account",
-        "login_subtitle": "Manage and deploy tool calibrations elegantly",
-        "username": "Username",
-        "password": "Password",
-        "sign_in": "Sign In",
-        "logout": "Logout",
-        "logged_in_as": "Logged in as",
-        "step": "Step",
-        "of": "of",
-        "wizard_title": "Tool Calibration Wizard",
-        "wizard_subtitle": "Please fill in the details below to record tool calibration data.",
-        # Customer Profile
-        "customer_section": "Customer Profile",
-        "customer_section_desc": "Enter the customer details (Name and Address).",
-        "prefill_title": "Use previous customer details?",
-        "prefill_btn": "Prefill",
-        "prefilled_btn": "Prefilled!",
-        "customer_name": "Customer Name",
-        "customer_address": "Customer Address",
-        "back": "Back",
-        "forward": "Forward",
-        "submit": "Submit Calibration",
-        "success_title": "Calibration Submitted",
-        "success_subtitle": "Successfully created and saved calibration record for",
-        "submitted_details": "Tool & Calibration Specifications",
-        "configure_another": "Calibrate Another Tool",
-        "sign_out": "Sign Out",
-        "error_login": "Invalid username or password. Please try admin/admin.",
-        # Tool Selection
-        "select_category_title": "Select Main Category",
-        "select_category_desc": "Choose a category to see the available tools.",
-        "category_pressure": "Pressure",
-        "select_tool_title": "Select Tool",
-        "select_tool_desc": "Choose a tool to calibrate from the list below.",
-        "search_tool_placeholder": "Search tools (e.g. Pressure Gauge, Manometer...)",
-        "selected_tool_label": "Selected Tool",
-        # Producer Selection
-        "select_producer_title": "Select Tool Producer",
-        "select_producer_desc": "Select the producer/manufacturer for this tool or enter custom manufacturer.",
-        "producer_label": "Producer Name",
-        "producer_custom_placeholder": "Enter a new producer name...",
-        "add_producer": "Add Tool Producer",
-        "producer_saved": "Producer saved permanently.",
-        "producer_save_error": "Could not save producer. Please try again.",
-        # Tool Specifications
-        "tool_specs_title": "Tool Specifications",
-        "tool_specs_desc": "Fill in the model, range, resolution, serial number, and location.",
-        "tool_model": "Model",
-        "tool_range": "Range",
-        "tool_resolution": "Resolution",
-        "tool_serial_no": "Serial No",
-        "tool_location": "Location of Tool",
-        # Calibration Table
-        "calibration_table_title": "Calibration Data Table",
-        "calibration_table_desc": "Fill in the calibration points in mbar as shown below.",
-        "table_uuc_header": "Unit Under Calibration (mbar)",
-        "table_ref_header": "Reference value (mbar)",
-        "table_rising": "Rising",
-        "table_falling": "Falling",
-        "add_row": "Add Row",
-        # Submissions page
-        "submissions_title": "Submitted Calibrations",
-        "submissions_subtitle": "Review and export all recorded tool calibrations.",
-        "download_csv": "Download CSV",
-        "no_submissions": "No submissions found yet.",
-        "nav_submissions": "Submissions",
-        "nav_wizard": "Calibration Wizard",
-        "table_customer": "Customer",
-        "table_tool": "Tool & Producer",
-        "table_specs": "Specifications",
-        "table_calibration_data": "Calibration Data",
-        "table_actions": "Actions",
-        "view_wizard_btn": "Go to Calibrator"
-    },
     "fa": {
         "title": "جریان کالیبراسیون",
         "login_title": "ورود به حساب کاربری",
@@ -133,10 +57,10 @@ TRANSLATIONS = {
         # Calibration Table
         "calibration_table_title": "جدول داده‌های کالیبراسیون",
         "calibration_table_desc": "نقاط کالیبراسیون را بر حسب میلی‌بار (mbar) مطابق جدول زیر وارد کنید.",
-        "table_uuc_header": "Unit Under Calibration (mbar)",
-        "table_ref_header": "Reference value (mbar)",
-        "table_rising": "Rising",
-        "table_falling": "Falling",
+        "table_uuc_header": "واحد تحت کالیبراسیون (mbar)",
+        "table_ref_header": "مقدار مرجع (mbar)",
+        "table_rising": "افزایشی",
+        "table_falling": "کاهشی",
         "add_row": "افزودن سطر",
         # Submissions page
         "submissions_title": "کالیبراسیون‌های ثبت شده",
@@ -157,7 +81,7 @@ TRANSLATIONS = {
 # Available Tools with Producers and Default Spec Profiles
 TOOLS_CONFIG = {
     "Pressure Gauge": {
-        "description": "Analog & mechanical dial pressure gauge",
+        "description": "گیج فشار عقربه‌ای و مکانیکی",
         "producers": ["WIKA", "Ashcroft", "Winters", "Keller"],
         "default_specs": {
             "model": "213.53",
@@ -168,7 +92,7 @@ TOOLS_CONFIG = {
         }
     },
     "Digital Manometer": {
-        "description": "High-accuracy digital differential manometer",
+        "description": "مانومتر دیجیتال تفاضلی با دقت بالا",
         "producers": ["Fluke", "Testo", "Dwyer", "Extech"],
         "default_specs": {
             "model": "718 30G",
@@ -179,7 +103,7 @@ TOOLS_CONFIG = {
         }
     },
     "Pressure Transmitter": {
-        "description": "4-20mA / HART smart pressure transmitter",
+        "description": "ترانسمیتر فشار هوشمند 4-20mA / HART",
         "producers": ["Rosemount", "Yokogawa", "Siemens", "Endress+Hauser"],
         "default_specs": {
             "model": "3051S",
@@ -190,7 +114,7 @@ TOOLS_CONFIG = {
         }
     },
     "Pressure Calibrator": {
-        "description": "Portable automatic pressure calibrator",
+        "description": "کالیبراتور فشار خودکار قابل حمل",
         "producers": ["Druck", "Fluke Calibration", "Additel", "Beamex"],
         "default_specs": {
             "model": "DPI 611",
