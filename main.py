@@ -43,10 +43,10 @@ def load_producer_catalog():
 def save_producer(tool_name: str, producer_name: str):
     catalog = load_producer_catalog()
     if tool_name not in TOOLS_CONFIG:
-        raise ValueError("Unknown tool")
+        raise ValueError("ابزار نامعتبر است")
     producer_name = producer_name.strip()
     if not producer_name:
-        raise ValueError("Producer name is required")
+        raise ValueError("نام سازنده الزامی است")
 
     existing = next(
         (name for name in catalog[tool_name] if name.casefold() == producer_name.casefold()),
@@ -70,7 +70,7 @@ def save_producer(tool_name: str, producer_name: str):
     return producer_name, catalog[tool_name]
 
 # Session Secret Key
-app.add_middleware(SessionMiddleware, secret_key="super-secret-fastapi-key-for-templates-bilingual-dynamic")
+app.add_middleware(SessionMiddleware, secret_key="super-secret-fastapi-key-for-persian-app")
 
 # Templates configuration
 templates = Jinja2Templates(directory="templates")
@@ -89,35 +89,26 @@ async def home(request: Request):
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     return RedirectResponse(url="/parameters", status_code=status.HTTP_303_SEE_OTHER)
 
-@app.get("/change-lang/{lang}")
-async def change_lang(request: Request, lang: str):
-    if lang in ["en", "fa"]:
-        request.session["lang"] = lang
-    referer = request.headers.get("referer", "/parameters")
-    if "/submit" in referer:
-        referer = "/parameters"
-    return RedirectResponse(url=referer, status_code=status.HTTP_303_SEE_OTHER)
-
 @app.get("/login", response_class=HTMLResponse)
 async def login_get(request: Request):
     user = get_current_user(request)
     if user:
         return RedirectResponse(url="/parameters", status_code=status.HTTP_303_SEE_OTHER)
 
-    lang = request.session.get("lang", "en")
+    lang = "fa"
     return templates.TemplateResponse(
         request=request,
         name="login.html",
         context={
             "error": None,
             "lang": lang,
-            "text": TRANSLATIONS[lang]
+            "text": TRANSLATIONS["fa"]
         }
     )
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
-    lang = request.session.get("lang", "en")
+    lang = "fa"
     if username == "admin" and password == "admin":
         request.session["user"] = username
         return RedirectResponse(url="/parameters", status_code=status.HTTP_303_SEE_OTHER)
@@ -181,7 +172,7 @@ async def parameters_get(request: Request):
 async def add_producer(request: Request):
     user = get_current_user(request)
     if not user:
-        return JSONResponse({"error": "Authentication required"}, status_code=401)
+        return JSONResponse({"error": "احراز هویت الزامی است"}, status_code=401)
     try:
         payload = await request.json()
         tool_name = str(payload.get("tool_name", "")).strip()
@@ -191,7 +182,7 @@ async def add_producer(request: Request):
     except ValueError as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
     except (TypeError, AttributeError, json.JSONDecodeError):
-        return JSONResponse({"error": "Invalid request"}, status_code=400)
+        return JSONResponse({"error": "درخواست نامعتبر است"}, status_code=400)
 
 @app.get("/submissions", response_class=HTMLResponse)
 async def submissions_get(request: Request):
