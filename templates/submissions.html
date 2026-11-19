@@ -1,257 +1,39 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-
-  <!-- Submissions Page Header -->
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-6 border-b border-slate-200 gap-4">
+<div class="max-w-5xl mx-auto py-8 px-4">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
     <div>
-      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
-        {{ text.submissions_title }}
-      </h1>
-      <p class="mt-2 text-sm text-slate-500">
-        {{ text.submissions_subtitle }}
-      </p>
+      <h1 class="text-3xl font-extrabold text-slate-900">پرونده‌های کاری</h1>
+      <p class="mt-2 text-sm text-slate-500">هر پرونده شامل یک مشتری و یک یا چند ابزار کالیبراسیون است.</p>
     </div>
-
-    <div class="flex items-center space-x-3 space-x-reverse">
-      {% if submissions %}
-      <a href="/submissions/download" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md shadow-indigo-100 transition-all">
-        <svg class="h-4 w-4 mr-2 {% if lang == 'fa' %}mr-0 ml-2{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-        </svg>
-        <span>{{ text.download_csv }}</span>
-      </a>
-      {% endif %}
-      <a href="/parameters" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-all">
-        {{ text.view_wizard_btn }}
-      </a>
-    </div>
+    <a href="/parameters" class="px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold text-center">ایجاد پرونده / افزودن ابزار</a>
   </div>
-
-  <!-- Mobile and Desktop Layout for Submitted Forms -->
-  {% if not submissions %}
-  <div class="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm">
-    <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-slate-50 text-slate-400 mb-4">
-      <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-      </svg>
-    </div>
-    <h3 class="text-base font-bold text-slate-800">{{ text.no_submissions }}</h3>
-    <div class="mt-4">
-      <a href="/parameters" class="inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-700">
-        {{ text.view_wizard_btn }} &rarr;
-      </a>
-    </div>
-  </div>
-  {% else %}
-
-  <!-- Responsive Card-based Layout for Tables -->
+  {% if submissions %}
   <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-slate-100 text-sm">
-        <thead class="bg-slate-50">
-          <tr>
-            <th scope="col" class="px-4 py-4 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">#</th>
-            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              {{ text.table_customer }}
-            </th>
-            <th scope="col" class="px-6 py-4 {% if lang == 'fa' %}text-right{% else %}text-left{% endif %} text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              {{ text.table_tool }}
-            </th>
-            <th scope="col" class="px-6 py-4 {% if lang == 'fa' %}text-right{% else %}text-left{% endif %} text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              {{ text.table_specs }}
-            </th>
-            <th scope="col" class="px-6 py-4 {% if lang == 'fa' %}text-right{% else %}text-left{% endif %} text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              {{ text.table_calibration_data }}
-            </th>
-            <th scope="col" class="px-4 py-4 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">عملیات</th>
-          </tr>
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-slate-500">
+          <tr><th class="px-5 py-4 text-right">شناسه پرونده</th><th class="px-5 py-4 text-right">مشتری</th><th class="px-5 py-4 text-center">تعداد ابزار</th><th class="px-5 py-4 text-right">تاریخ ایجاد</th><th class="px-5 py-4 text-center">جزئیات</th></tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 bg-white">
-          {% for sub in submissions %}
-          <tr class="hover:bg-slate-50/50 transition-colors">
-            <td class="px-4 py-4 text-center font-semibold text-slate-500">{{ loop.index }}</td>
-            <!-- Customer (Name & Address only) -->
-            <td class="px-6 py-4">
-              <div class="font-bold text-slate-800">{{ sub.customer_name }}</div>
-              <div class="text-xs text-slate-500 mt-1 whitespace-pre-line">{{ sub.customer_address }}</div>
-            </td>
-            <!-- Tool & Producer -->
-            <td class="whitespace-nowrap px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 mb-1">
-                {{ sub.selected_tool }}
-              </span>
-              <div class="text-xs font-semibold text-slate-600">{{ sub.producer_name }}</div>
-            </td>
-            <!-- Tool Specs -->
-            <td class="px-6 py-4 text-xs text-slate-600">
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
-                  <span><span class="text-slate-400">{{ text.tool_model }}:</span> <span class="font-mono font-medium">{{ sub.model }}</span></span>
-                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.model | e }}" title="کپی مدل" aria-label="کپی مدل">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
-                  </button>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span><span class="text-slate-400">{{ text.tool_range }}:</span> <span class="font-mono font-medium">{{ sub.range }}</span></span>
-                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.range | e }}" title="کپی گستره" aria-label="کپی گستره">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
-                  </button>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span><span class="text-slate-400">{{ text.tool_resolution }}:</span> <span class="font-mono font-medium">{{ sub.resolution }}</span></span>
-                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.resolution | e }}" title="کپی تفکیک‌پذیری" aria-label="کپی تفکیک‌پذیری">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
-                  </button>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span><span class="text-slate-400">{{ text.tool_serial_no }}:</span> <span class="font-mono font-medium">{{ sub.serial_no }}</span></span>
-                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.serial_no | e }}" title="کپی شماره سریال" aria-label="کپی شماره سریال">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
-                  </button>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span><span class="text-slate-400">{{ text.tool_location }}:</span> <span class="font-medium">{{ sub.tool_location }}</span></span>
-                  <button type="button" class="copy-spec-btn rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" data-copy-value="{{ sub.tool_location | e }}" title="کپی محل استقرار" aria-label="کپی محل استقرار">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3"/></svg>
-                  </button>
-                </div>
-              </div>
-            </td>
-            <!-- Calibration Points -->
-            <td class="px-6 py-4 text-xs">
-              <div class="border border-slate-200 rounded-lg overflow-hidden">
-                <table class="w-full text-[11px] border-collapse">
-                  <thead class="bg-slate-100 text-slate-600 font-semibold">
-                    <tr>
-                      <th class="px-2 py-1 text-center border-r border-slate-200">UUC</th>
-                      <th class="px-2 py-1 text-center border-r border-slate-200">{{ text.table_rising }}</th>
-                      <th class="px-2 py-1 text-center">{{ text.table_falling }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for row in sub.calibration_points %}
-                    <tr class="border-t border-slate-200 font-mono text-center">
-                      <td class="px-2 py-1 border-r border-slate-200">{{ row.uuc }}</td>
-                      <td class="px-2 py-1 border-r border-slate-200">{{ row.ref_rising }}</td>
-                      <td class="px-2 py-1">{{ row.ref_falling }}</td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </td>
-            <td class="px-4 py-4 text-center">
-              <button
-                type="button"
-                class="copy-submission-row-btn group inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-600 shadow-sm transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                data-submission='{{ sub | tojson | forceescape }}'
-                title="کپی ردیف‌های اندازه‌گیری برای اکسل"
-                aria-label="کپی ردیف‌های اندازه‌گیری برای اکسل">
-                <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <rect x="8" y="8" width="12" height="12" rx="2" stroke-width="2" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3" />
-                </svg>
-                <span class="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:max-w-16 group-hover:opacity-100 group-focus-visible:max-w-16 group-focus-visible:opacity-100">کپی</span>
-              </button>
-            </td>
+        <tbody class="divide-y divide-slate-100">
+          {% for item in submissions %}
+          <tr class="hover:bg-slate-50">
+            <td class="px-5 py-4 font-mono font-bold text-indigo-700">{{ item.work_id }}</td>
+            <td class="px-5 py-4"><div class="font-semibold text-slate-800">{{ item.customer_name }}</div><div class="text-xs text-slate-500 mt-1">{{ item.customer_address }}</div></td>
+            <td class="px-5 py-4 text-center">{{ item.tool_count }}</td>
+            <td class="px-5 py-4 text-slate-500">{{ item.created_at.strftime('%Y-%m-%d %H:%M') if item.created_at else '—' }}</td>
+            <td class="px-5 py-4 text-center"><a href="/work-orders/{{ item.work_id }}" class="inline-flex px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100">مشاهده ابزارها</a></td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
+  {% else %}
+  <div class="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm">
+    <h3 class="font-bold text-slate-800">هنوز پرونده کاری ثبت نشده است.</h3>
+    <a href="/parameters" class="inline-flex mt-4 text-indigo-600 font-bold">ایجاد اولین پرونده</a>
+  </div>
   {% endif %}
-
 </div>
-<script>
-  function buildExcelGrid(submission) {
-    // Match the Excel calibration table column order: Falling, Rising, UUC.
-    // Copy measurement rows only; omit headers and certificate metadata.
-    return (submission.calibration_points || [])
-      .map((point) => [
-        point.ref_falling ?? '',
-        point.ref_rising ?? '',
-        point.uuc ?? ''
-      ].map((value) => String(value ?? '').replace(/[\t\r\n]+/g, ' ')).join('\t'))
-      .join('\n');
-  }
-
-  async function copySubmissionExcel(button) {
-    const originalContent = button.innerHTML;
-
-    try {
-      const excelData = buildExcelGrid(JSON.parse(button.dataset.submission));
-
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(excelData);
-      } else {
-        const temporaryTextarea = document.createElement('textarea');
-        temporaryTextarea.value = excelData;
-        temporaryTextarea.setAttribute('readonly', '');
-        temporaryTextarea.style.position = 'fixed';
-        temporaryTextarea.style.opacity = '0';
-        document.body.appendChild(temporaryTextarea);
-        temporaryTextarea.select();
-        const copied = document.execCommand('copy');
-        temporaryTextarea.remove();
-
-        if (!copied) throw new Error('کپی در کلیپ‌بورد انجام نشد');
-      }
-
-      button.innerHTML = '<span class="text-emerald-600">کپی شد</span>';
-      button.classList.add('border-emerald-200', 'bg-emerald-50');
-    } catch (error) {
-      console.error('خطا در کپی داده‌ها برای اکسل:', error);
-      button.innerHTML = '<span class="text-rose-600">کپی ناموفق</span>';
-    }
-
-    setTimeout(() => {
-      button.innerHTML = originalContent;
-      button.classList.remove('border-emerald-200', 'bg-emerald-50');
-    }, 1800);
-  }
-
-  document.querySelectorAll('.copy-submission-row-btn').forEach((button) => {
-    button.addEventListener('click', () => copySubmissionExcel(button));
-  });
-
-  async function copyTextToClipboard(value) {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(value);
-      return;
-    }
-
-    const temporaryTextarea = document.createElement('textarea');
-    temporaryTextarea.value = value;
-    temporaryTextarea.setAttribute('readonly', '');
-    temporaryTextarea.style.position = 'fixed';
-    temporaryTextarea.style.opacity = '0';
-    document.body.appendChild(temporaryTextarea);
-    temporaryTextarea.select();
-    const copied = document.execCommand('copy');
-    temporaryTextarea.remove();
-    if (!copied) throw new Error('Clipboard copy was not successful');
-  }
-
-  document.querySelectorAll('.copy-spec-btn').forEach((button) => {
-    button.addEventListener('click', async () => {
-      const originalTitle = button.title;
-      try {
-        await copyTextToClipboard(button.dataset.copyValue || '');
-        button.title = 'کپی شد';
-        button.classList.add('text-emerald-600');
-      } catch (error) {
-        console.error('خطا در کپی مشخصات:', error);
-        button.title = 'کپی ناموفق';
-      }
-      setTimeout(() => {
-        button.title = originalTitle;
-        button.classList.remove('text-emerald-600');
-      }, 1500);
-    });
-  });
-</script>
-
 {% endblock %}
