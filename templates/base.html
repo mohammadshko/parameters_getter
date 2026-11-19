@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ lang if lang else 'en' }}" dir="{{ 'rtl' if lang == 'fa' else 'ltr' }}" class="h-full bg-slate-50">
+<html lang="fa" dir="rtl" class="h-full bg-slate-50">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,16 +49,6 @@
 
         <!-- Right Header Items -->
         <div class="flex items-center space-x-4 {% if lang == 'fa' %}space-x-reverse{% endif %}">
-          <!-- Language Selector -->
-          <div class="flex items-center bg-slate-100 p-1 rounded-xl">
-            <a href="/change-lang/en" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all {% if lang == 'en' or not lang %}bg-white text-indigo-600 shadow-sm{% else %}text-slate-500 hover:text-slate-800{% endif %}">
-              EN
-            </a>
-            <a href="/change-lang/fa" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all {% if lang == 'fa' %}bg-white text-indigo-600 shadow-sm{% else %}text-slate-500 hover:text-slate-800{% endif %}">
-              فارسی
-            </a>
-          </div>
-
           {% if user %}
           <div class="hidden md:flex items-center space-x-2 {% if lang == 'fa' %}space-x-reverse{% endif %} text-sm">
             <span class="text-slate-400">{{ text.logged_in_as if text else 'Logged in as' }}</span>
@@ -86,7 +76,7 @@
   <!-- Footer -->
   <footer class="bg-white border-t border-slate-100 py-6">
     <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
-      &copy; 2025 {{ text.title if text else 'ConfigFlow' }} Inc. All rights reserved.
+      &copy; 2025 © {{ text.title if text else 'جریان کالیبراسیون' }}
     </div>
   </footer>
 
