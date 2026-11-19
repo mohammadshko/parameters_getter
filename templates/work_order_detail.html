@@ -4,7 +4,8 @@
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
     <div>
       <p class="text-xs font-semibold text-indigo-600 mb-2">پرونده کاری</p>
-      <h1 class="text-3xl font-extrabold text-slate-900 font-mono">{{ work_order.work_id }}</h1>
+      <h1 class="text-3xl font-extrabold text-slate-900">{{ work_order.work_name or 'بدون نام' }}</h1>
+      <p class="mt-1 text-sm text-slate-500 font-mono">شناسه پرونده: {{ work_order.work_id }}</p>
       <p class="mt-2 text-slate-600">مشتری: <strong>{{ work_order.customer_name }}</strong></p>
       <p class="text-sm text-slate-500">{{ work_order.customer_address }}</p>
     </div>
