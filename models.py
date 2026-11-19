@@ -21,6 +21,7 @@ class WorkOrder(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     work_id: Mapped[str] = mapped_column(String(32), unique=True, index=True, nullable=False)
+    work_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"), nullable=False, index=True)
     created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
