@@ -318,6 +318,9 @@
       btn.textContent = producer;
       btn.addEventListener('click', () => {
         selectProducer(producer, btn);
+
+        // Choosing a producer completes step 3 and advances to specifications.
+        nextBtn.click();
       });
       producerButtonsContainer.appendChild(btn);
 
@@ -368,14 +371,21 @@
       activeToolName = this.getAttribute('data-tool');
       selectedToolInput.value = activeToolName;
       updateProducersForActiveTool();
+
+      // Choosing a tool completes step 2 and advances to producer selection.
+      if (!isInitializingToolSelection) {
+        nextBtn.click();
+      }
     });
   });
 
-  // Select initial tool card
+  // Select initial tool card without triggering the step-2 auto-advance.
+  let isInitializingToolSelection = true;
   const initialCard = document.querySelector(`.tool-card-btn[data-tool="${activeToolName}"]`);
   if (initialCard) {
     initialCard.click();
   }
+  isInitializingToolSelection = false;
 
   // Prefill handler (only customer name and address)
   const prevNameValue = "{{ prev_name | safe }}";
