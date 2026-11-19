@@ -245,12 +245,15 @@ async def create_work_order(request: Request):
         customer = db.get(Customer, customer_id)
         if customer is None:
             return JSONResponse({"error": "مشتری یافت نشد"}, status_code=404)
-        while True:
-            work_id = "WK-" + secrets.token_hex(4).upper()
-            if not db.scalar(select(WorkOrder.id).where(WorkOrder.work_id == work_id)):
-                break
-        order = WorkOrder(work_id=work_id, customer_id=customer.id)
+        # Use a temporary unique value for the insert, then replace it with
+        # the database-generated auto-incrementing primary key.
+        order = WorkOrder(
+            work_id="PENDING-" + secrets.token_hex(8).upper(),
+            customer_id=customer.id
+        )
         db.add(order)
+        db.flush()
+        order.work_id = str(order.id)
         db.commit()
         return {"work_id": order.work_id, "customer_id": customer.id, "customer_name": customer.name}
 
