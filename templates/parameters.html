@@ -552,7 +552,7 @@
         const option = document.createElement('button');
         option.type = 'button';
         option.className = 'block w-full text-right px-4 py-3 hover:bg-indigo-50 border-b border-slate-100';
-        option.textContent = order.work_id + ' — ' + order.customer_name + ' (' + order.tool_count + ' ابزار)';
+        option.textContent = (order.work_name ? order.work_name + ' — ' : '') + order.work_id + ' — ' + order.customer_name + ' (' + order.tool_count + ' ابزار)';
         option.addEventListener('click', () => {
           selectedWorkOrder = order;
           workIdInput.value = order.work_id;
@@ -560,7 +560,7 @@
           document.getElementById('customer_name').value = order.customer_name;
           document.getElementById('customer_address').value = order.customer_address;
           customerSearchInput.value = order.customer_name;
-          selectedWorkInfo.textContent = 'پرونده ' + order.work_id + ' — مشتری: ' + order.customer_name + ' — تعداد ابزار ثبت‌شده: ' + order.tool_count;
+          selectedWorkInfo.textContent = (order.work_name ? order.work_name + ' — ' : '') + 'پرونده ' + order.work_id + ' — مشتری: ' + order.customer_name + ' — تعداد ابزار ثبت‌شده: ' + order.tool_count;
           selectedWorkInfo.classList.remove('hidden');
           workSearchInput.value = order.work_id;
           workSearchResults.classList.add('hidden');
