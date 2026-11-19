@@ -218,16 +218,16 @@ async def submissions_download(request: Request):
 
     # Write dynamic header
     writer.writerow([
-        "Customer Name",
-        "Customer Address",
-        "Tool",
-        "Producer",
-        "Model",
-        "Range",
-        "Resolution",
-        "Serial No",
-        "Location of Tool",
-        "Calibration Points (UUC, Rising, Falling)"
+        "نام مشتری",
+        "آدرس مشتری",
+        "ابزار",
+        "سازنده",
+        "مدل",
+        "گستره",
+        "تفکیک‌پذیری",
+        "شماره سریال",
+        "محل استقرار ابزار",
+        "نقاط کالیبراسیون (UUC، افزایشی، کاهشی)"
     ])
 
     for sub in SUBMITTED_FORMS:
@@ -235,7 +235,7 @@ async def submissions_download(request: Request):
         cal_str_list = []
         for pt in sub.get("calibration_points", []):
             if pt.get("uuc") or pt.get("ref_rising") or pt.get("ref_falling"):
-                cal_str_list.append(f"UUC:{pt.get('uuc')}|Rising:{pt.get('ref_rising')}|Falling:{pt.get('ref_falling')}")
+                cal_str_list.append(f"UUC:{pt.get('uuc')}|افزایشی:{pt.get('ref_rising')}|کاهشی:{pt.get('ref_falling')}")
         cal_str = "; ".join(cal_str_list)
 
         writer.writerow([
