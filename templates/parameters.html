@@ -115,9 +115,16 @@
             <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">{{ text.producer_label }}</label>
             <div id="producer-buttons-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"></div>
             <div>
-              <input type="text" id="producer_name" name="producer_name" required
-                placeholder="{{ text.producer_custom_placeholder }}"
-                class="block w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+              <div class="flex flex-col sm:flex-row gap-2">
+                <input type="text" id="producer_name" name="producer_name" required
+                  placeholder="{{ text.producer_custom_placeholder }}"
+                  class="min-w-0 flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                <button type="button" id="add-producer-btn"
+                  class="px-4 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors whitespace-nowrap">
+                  {{ text.add_producer }}
+                </button>
+              </div>
+              <p id="producer-save-message" class="text-xs mt-2 hidden" role="status"></p>
             </div>
           </div>
         </div>
@@ -266,6 +273,10 @@
   const selectedToolInput = document.getElementById('selected-tool-input');
   const producerButtonsContainer = document.getElementById('producer-buttons-container');
   const producerNameInput = document.getElementById('producer_name');
+  const addProducerBtn = document.getElementById('add-producer-btn');
+  const producerSaveMessage = document.getElementById('producer-save-message');
+  const producerSavedMessage = {{ text.producer_saved | tojson }};
+  const producerSaveErrorMessage = {{ text.producer_save_error | tojson }};
   const specsToolBadge = document.getElementById('specs-tool-badge');
 
   // Input spec fields
@@ -389,6 +400,47 @@
     if (specsToolBadge) {
       specsToolBadge.textContent = activeToolName;
     }
+  }
+
+
+  // Save a custom producer permanently for the currently selected tool.
+  if (addProducerBtn) {
+    addProducerBtn.addEventListener('click', async () => {
+      const producerName = producerNameInput.value.trim();
+      if (!producerName) {
+        producerNameInput.focus();
+        producerNameInput.classList.add('border-rose-400');
+        return;
+      }
+      addProducerBtn.disabled = true;
+      addProducerBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      try {
+        const response = await fetch('/producers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tool_name: activeToolName, producer_name: producerName })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || producerSaveErrorMessage);
+
+        toolsConfig[activeToolName].producers = result.producers;
+        producerNameInput.value = result.producer;
+        updateProducersForActiveTool();
+        const selectedButton = Array.from(producerButtonsContainer.querySelectorAll('.producer-badge-btn'))
+          .find(button => button.textContent === result.producer);
+        selectProducer(result.producer, selectedButton);
+        producerSaveMessage.textContent = producerSavedMessage;
+        producerSaveMessage.classList.remove('hidden', 'text-rose-600');
+        producerSaveMessage.classList.add('text-emerald-600');
+      } catch (error) {
+        producerSaveMessage.textContent = producerSaveErrorMessage;
+        producerSaveMessage.classList.remove('hidden', 'text-emerald-600');
+        producerSaveMessage.classList.add('text-rose-600');
+      } finally {
+        addProducerBtn.disabled = false;
+        addProducerBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+      }
+    });
   }
 
   function selectProducer(name, targetBtn) {
