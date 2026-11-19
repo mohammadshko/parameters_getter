@@ -31,6 +31,9 @@ TRANSLATIONS = {
         "sign_out": "Sign Out",
         "error_login": "Invalid username or password. Please try admin/admin.",
         # Tool Selection
+        "select_category_title": "Select Main Category",
+        "select_category_desc": "Choose a category to see the available tools.",
+        "category_pressure": "Pressure",
         "select_tool_title": "Select Tool",
         "select_tool_desc": "Choose a tool to calibrate from the list below.",
         "search_tool_placeholder": "Search tools (e.g. Pressure Gauge, Manometer...)",
@@ -101,6 +104,9 @@ TRANSLATIONS = {
         "sign_out": "خروج از سیستم",
         "error_login": "نام کاربری یا رمز عبور نامعتبر است. لطفا admin/admin را امتحان کنید.",
         # Tool Selection
+        "select_category_title": "انتخاب دسته‌بندی اصلی",
+        "select_category_desc": "برای مشاهده ابزارهای موجود، یک دسته‌بندی انتخاب کنید.",
+        "category_pressure": "فشار",
         "select_tool_title": "انتخاب ابزار",
         "select_tool_desc": "ابزار مورد نظر برای کالیبراسیون را از فهرست زیر انتخاب کنید.",
         "search_tool_placeholder": "جستجوی ابزارها (مانند گیج فشار، مانومتر...)",
@@ -188,4 +194,16 @@ TOOLS_CONFIG = {
             "location": "Standards Laboratory"
         }
     }
+}
+
+
+# Main categories and the tools available under each category.
+# Add new categories here as the tool catalog grows.
+TOOL_CATEGORIES = {
+    "Pressure": [
+        "Pressure Gauge",
+        "Digital Manometer",
+        "Pressure Transmitter",
+        "Pressure Calibrator",
+    ]
 }
