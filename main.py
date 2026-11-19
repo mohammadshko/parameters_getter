@@ -8,8 +8,14 @@ from starlette.middleware.sessions import SessionMiddleware
 
 # Import modularized translation catalogs and tools configuration from constants file
 from constants import TRANSLATIONS, TOOLS_CONFIG, TOOL_CATEGORIES
+from database import init_db
 
 app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
+
+@app.on_event("startup")
+async def startup_event():
+    init_db()
+
 
 # In-memory global store for submitted configurations
 SUBMITTED_FORMS = []
