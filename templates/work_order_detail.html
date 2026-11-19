@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-5xl mx-auto py-8 px-4">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <p class="text-xs font-semibold text-indigo-600 mb-2">پرونده کاری</p>
+      <h1 class="text-3xl font-extrabold text-slate-900 font-mono">{{ work_order.work_id }}</h1>
+      <p class="mt-2 text-slate-600">مشتری: <strong>{{ work_order.customer_name }}</strong></p>
+      <p class="text-sm text-slate-500">{{ work_order.customer_address }}</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="/parameters" class="px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold">افزودن ابزار دیگر</a>
+      <a href="/submissions" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold">بازگشت به پرونده‌ها</a>
+    </div>
+  </div>
+  <div class="space-y-4">
+    {% for tool in tools %}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div><span class="text-xs text-slate-400">ابزار {{ loop.index }}</span><h2 class="text-xl font-bold text-slate-800">{{ tool.selected_tool }}</h2></div>
+        <span class="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-semibold">{{ tool.producer_name }}</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+        <div><span class="text-slate-400">مدل:</span> {{ tool.model }}</div>
+        <div><span class="text-slate-400">گستره:</span> {{ tool.range }}</div>
+        <div><span class="text-slate-400">تفکیک‌پذیری:</span> {{ tool.resolution }}</div>
+        <div><span class="text-slate-400">شماره سریال:</span> {{ tool.serial_no }}</div>
+        <div><span class="text-slate-400">محل استقرار:</span> {{ tool.tool_location }}</div>
+      </div>
+      <div class="mt-5 overflow-x-auto border border-slate-200 rounded-xl">
+        <table class="w-full text-sm text-center">
+          <thead class="bg-slate-50"><tr><th class="p-2">UUC</th><th class="p-2">افزایشی</th><th class="p-2">کاهشی</th></tr></thead>
+          <tbody>{% for point in tool.calibration_points %}<tr class="border-t border-slate-100"><td class="p-2">{{ point.uuc }}</td><td class="p-2">{{ point.ref_rising }}</td><td class="p-2">{{ point.ref_falling }}</td></tr>{% endfor %}</tbody>
+        </table>
+      </div>
+    </section>
+    {% else %}
+    <div class="p-10 text-center bg-white rounded-2xl border border-slate-100">هنوز ابزاری به این پرونده اضافه نشده است.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
