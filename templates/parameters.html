@@ -509,6 +509,12 @@
   }
   newWorkModeBtn.addEventListener('click', () => setWorkMode('new'));
   existingWorkModeBtn.addEventListener('click', () => setWorkMode('existing'));
+  const requestedWorkId = new URLSearchParams(window.location.search).get('work_id');
+  if (requestedWorkId) {
+    setWorkMode('existing');
+    workSearchInput.value = requestedWorkId;
+    workSearchInput.dispatchEvent(new Event('input'));
+  }
 
   let workSearchRequest = 0;
   workSearchInput.addEventListener('input', async () => {
@@ -691,7 +697,7 @@
       updateWizard();
       return;
     }
-    if (currentStep === 1 && workMode === 'new') {
+    if (currentStep === 1 && workMode === 'new' && !workIdInput.value) {
       try {
         const response = await fetch('/work-orders', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
