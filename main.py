@@ -117,9 +117,9 @@ async def login_post(request: Request, username: str = Form(...), password: str 
         request=request,
         name="login.html",
         context={
-            "error": TRANSLATIONS[lang]["error_login"],
+            "error": TRANSLATIONS["fa"]["error_login"],
             "lang": lang,
-            "text": TRANSLATIONS[lang]
+            "text": TRANSLATIONS["fa"]
         }
     )
 
@@ -134,7 +134,7 @@ async def parameters_get(request: Request):
     if not user:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    lang = request.session.get("lang", "en")
+    lang = "fa"
 
     # Retrieve previous customer info if stored in session (name and address only)
     prev_name = request.session.get("prev_customer_name", "")
@@ -160,7 +160,7 @@ async def parameters_get(request: Request):
             "default_tool": default_tool_name,
             "user": user,
             "lang": lang,
-            "text": TRANSLATIONS[lang],
+            "text": TRANSLATIONS["fa"],
             "prev_name": prev_name,
             "prev_address": prev_address,
             "has_previous": has_previous
@@ -190,14 +190,14 @@ async def submissions_get(request: Request):
     if not user:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    lang = request.session.get("lang", "en")
+    lang = "fa"
     return templates.TemplateResponse(
         request=request,
         name="submissions.html",
         context={
             "user": user,
             "lang": lang,
-            "text": TRANSLATIONS[lang],
+            "text": TRANSLATIONS["fa"],
             "submissions": SUBMITTED_FORMS
         }
     )
@@ -269,7 +269,7 @@ async def parameters_post(request: Request):
     if not user:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    lang = request.session.get("lang", "en")
+    lang = "fa"
     form_data = await request.form()
 
     # Extract customer info (only name and address as requested)
@@ -329,7 +329,7 @@ async def parameters_post(request: Request):
         context={
             "user": user,
             "lang": lang,
-            "text": TRANSLATIONS[lang],
+            "text": TRANSLATIONS["fa"],
             "record": submission_record
         }
     )
