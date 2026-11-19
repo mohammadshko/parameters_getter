@@ -1,6 +1,8 @@
 import os
+import json
+import tempfile
 from fastapi import FastAPI, Request, Form, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -11,6 +13,61 @@ app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
 
 # In-memory global store for submitted configurations
 SUBMITTED_FORMS = []
+
+# Persistent custom producer catalog. Producers are stored per tool and survive restarts.
+PRODUCERS_FILE = os.path.join(os.path.dirname(__file__), "data", "producers.json")
+
+
+def load_producer_catalog():
+    catalog = {tool: list(config.get("producers", [])) for tool, config in TOOLS_CONFIG.items()}
+    try:
+        with open(PRODUCERS_FILE, "r", encoding="utf-8") as file:
+            saved_catalog = json.load(file)
+        if isinstance(saved_catalog, dict):
+            for tool, producers in saved_catalog.items():
+                if tool in catalog and isinstance(producers, list):
+                    known = {name.casefold() for name in catalog[tool]}
+                    for producer in producers:
+                        if isinstance(producer, str) and producer.strip():
+                            name = producer.strip()
+                            if name.casefold() not in known:
+                                catalog[tool].append(name)
+                                known.add(name.casefold())
+    except FileNotFoundError:
+        pass
+    except (json.JSONDecodeError, OSError):
+        pass
+    return catalog
+
+
+def save_producer(tool_name: str, producer_name: str):
+    catalog = load_producer_catalog()
+    if tool_name not in TOOLS_CONFIG:
+        raise ValueError("Unknown tool")
+    producer_name = producer_name.strip()
+    if not producer_name:
+        raise ValueError("Producer name is required")
+
+    existing = next(
+        (name for name in catalog[tool_name] if name.casefold() == producer_name.casefold()),
+        None
+    )
+    if existing:
+        return existing, catalog[tool_name]
+
+    catalog[tool_name].append(producer_name)
+    data_dir = os.path.dirname(PRODUCERS_FILE)
+    os.makedirs(data_dir, exist_ok=True)
+    fd, temporary_path = tempfile.mkstemp(prefix="producers_", suffix=".tmp", dir=data_dir)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as file:
+            json.dump(catalog, file, ensure_ascii=False, indent=2)
+            file.write("\n")
+        os.replace(temporary_path, PRODUCERS_FILE)
+    finally:
+        if os.path.exists(temporary_path):
+            os.unlink(temporary_path)
+    return producer_name, catalog[tool_name]
 
 # Session Secret Key
 app.add_middleware(SessionMiddleware, secret_key="super-secret-fastapi-key-for-templates-bilingual-dynamic")
@@ -95,14 +152,19 @@ async def parameters_get(request: Request):
     # Check if previous customer data exists for prefill
     has_previous = any([prev_name, prev_address])
 
-    # Default tool
+    # Default tool and producer catalog (built-in + permanently saved custom producers).
     default_tool_name = list(TOOLS_CONFIG.keys())[0]
+    producer_catalog = load_producer_catalog()
+    tools_config_for_template = {
+        tool: {**config, "producers": producer_catalog.get(tool, config.get("producers", []))}
+        for tool, config in TOOLS_CONFIG.items()
+    }
 
     return templates.TemplateResponse(
         request=request,
         name="parameters.html",
         context={
-            "tools_config": TOOLS_CONFIG,
+            "tools_config": tools_config_for_template,
             "tool_categories": TOOL_CATEGORIES,
             "default_tool": default_tool_name,
             "user": user,
@@ -113,6 +175,23 @@ async def parameters_get(request: Request):
             "has_previous": has_previous
         }
     )
+
+
+@app.post("/producers")
+async def add_producer(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+    try:
+        payload = await request.json()
+        tool_name = str(payload.get("tool_name", "")).strip()
+        producer_name = str(payload.get("producer_name", "")).strip()
+        saved_name, producers = save_producer(tool_name, producer_name)
+        return {"producer": saved_name, "producers": producers}
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    except (TypeError, AttributeError, json.JSONDecodeError):
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
 
 @app.get("/submissions", response_class=HTMLResponse)
 async def submissions_get(request: Request):
