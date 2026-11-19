@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase
 
 DATABASE_URL = os.getenv(
@@ -23,3 +23,9 @@ def init_db() -> None:
     import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+
+    # Add the new optional work_name column to existing installations.
+    with engine.begin() as connection:
+        connection.execute(text(
+            'ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS work_name VARCHAR(255)'
+        ))
