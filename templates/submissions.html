@@ -13,13 +13,12 @@
     <div class="overflow-x-auto">
       <table class="min-w-full text-sm">
         <thead class="bg-slate-50 text-slate-500">
-          <tr><th class="px-5 py-4 text-center">ردیف</th><th class="px-5 py-4 text-right">شناسه پرونده</th><th class="px-5 py-4 text-right">نام پرونده</th><th class="px-5 py-4 text-right">مشتری</th><th class="px-5 py-4 text-center">تعداد ابزار</th><th class="px-5 py-4 text-right">تاریخ ایجاد</th><th class="px-5 py-4 text-center">جزئیات</th></tr>
+          <tr><th class="px-5 py-4 text-center">ردیف</th><th class="px-5 py-4 text-right">نام پرونده</th><th class="px-5 py-4 text-right">مشتری</th><th class="px-5 py-4 text-center">تعداد ابزار</th><th class="px-5 py-4 text-right">تاریخ ایجاد</th><th class="px-5 py-4 text-center">جزئیات</th></tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
           {% for item in submissions %}
           <tr class="hover:bg-slate-50">
             <td class="px-5 py-4 text-center text-slate-500">{{ start_index + loop.index }}</td>
-            <td class="px-5 py-4 font-mono font-bold text-indigo-700">{{ item.work_id }}</td>
             <td class="px-5 py-4 font-semibold text-slate-800">{{ item.work_name or '—' }}</td>
             <td class="px-5 py-4"><div class="font-semibold text-slate-800">{{ item.customer_name }}</div><div class="text-xs text-slate-500 mt-1">{{ item.customer_address }}</div></td>
             <td class="px-5 py-4 text-center">{{ item.tool_count }}</td>
