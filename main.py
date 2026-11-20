@@ -266,6 +266,23 @@ async def create_work_order(request: Request):
         return {"work_id": order.work_id, "work_name": order.work_name, "customer_id": customer.id, "customer_name": customer.name}
 
 
+@app.post("/work-orders/{work_id}/delete")
+def delete_work_order(request: Request, work_id: str):
+    if not get_current_user(request):
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    with Session(engine) as db:
+        order = db.scalar(
+            select(WorkOrder).options(selectinload(WorkOrder.tools))
+            .where(WorkOrder.work_id == work_id)
+        )
+        if order is not None:
+            db.delete(order)
+            db.commit()
+
+    return RedirectResponse(url="/submissions", status_code=status.HTTP_303_SEE_OTHER)
+
+
 @app.get("/work-orders/{work_id}", response_class=HTMLResponse)
 def work_order_detail(request: Request, work_id: str):
     user = get_current_user(request)
