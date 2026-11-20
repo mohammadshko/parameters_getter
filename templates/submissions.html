@@ -13,7 +13,7 @@
     <div class="overflow-x-auto">
       <table class="min-w-full text-sm">
         <thead class="bg-slate-50 text-slate-500">
-          <tr><th class="px-5 py-4 text-right">شناسه پرونده</th><th class="px-5 py-4 text-right">نام پرونده</th><th class="px-5 py-4 text-right">مشتری</th><th class="px-5 py-4 text-center">تعداد ابزار</th><th class="px-5 py-4 text-right">تاریخ ایجاد</th><th class="px-5 py-4 text-center">جزئیات</th></tr>
+          <tr><th class="px-5 py-4 text-center">ردیف</th><th class="px-5 py-4 text-right">شناسه پرونده</th><th class="px-5 py-4 text-right">نام پرونده</th><th class="px-5 py-4 text-right">مشتری</th><th class="px-5 py-4 text-center">تعداد ابزار</th><th class="px-5 py-4 text-right">تاریخ ایجاد</th><th class="px-5 py-4 text-center">جزئیات</th></tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
           {% for item in submissions %}
@@ -28,6 +28,22 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-4 border-t border-slate-100">
+      <p class="text-sm text-slate-500">نمایش {{ start_index + 1 }} تا {{ start_index + submissions|length }} از {{ total_count }} پرونده</p>
+      {% if total_pages > 1 %}
+      <nav class="flex items-center gap-2" aria-label="صفحه‌بندی">
+        {% if page > 1 %}
+        <a href="/submissions?page={{ page - 1 }}" class="px-3 py-2 rounded-lg border border-slate-200 text-sm hover:bg-slate-50">قبلی</a>
+        {% endif %}
+        {% for page_number in range(1, total_pages + 1) %}
+        <a href="/submissions?page={{ page_number }}" class="min-w-9 px-3 py-2 rounded-lg border text-sm text-center {% if page_number == page %}bg-indigo-600 border-indigo-600 text-white{% else %}border-slate-200 text-slate-700 hover:bg-slate-50{% endif %}">{{ page_number }}</a>
+        {% endfor %}
+        {% if page < total_pages %}
+        <a href="/submissions?page={{ page + 1 }}" class="px-3 py-2 rounded-lg border border-slate-200 text-sm hover:bg-slate-50">بعدی</a>
+        {% endif %}
+      </nav>
+      {% endif %}
     </div>
   </div>
   {% else %}
