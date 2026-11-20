@@ -10,7 +10,7 @@ from starlette.middleware.sessions import SessionMiddleware
 # Import modularized translation catalogs and tools configuration from constants file
 from constants import TRANSLATIONS, TOOLS_CONFIG, TOOL_CATEGORIES
 from database import init_db, engine
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session, selectinload
 from models import Customer, WorkOrder, ToolConfiguration
 
@@ -315,16 +315,23 @@ async def add_producer(request: Request):
         return JSONResponse({"error": "درخواست نامعتبر است"}, status_code=400)
 
 @app.get("/submissions", response_class=HTMLResponse)
-async def submissions_get(request: Request):
+async def submissions_get(request: Request, page: int = 1):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
+    page_size = 20
+    page = max(1, page)
     with Session(engine) as db:
+        total_count = db.scalar(select(func.count()).select_from(WorkOrder)) or 0
+        total_pages = max(1, (total_count + page_size - 1) // page_size)
+        page = min(page, total_pages)
         orders = db.scalars(
             select(WorkOrder).options(
                 selectinload(WorkOrder.customer), selectinload(WorkOrder.tools)
-            ).order_by(WorkOrder.created_at.desc())
+            ).order_by(WorkOrder.created_at.desc(), WorkOrder.id.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
         ).all()
         work_orders = [{
             "work_id": order.work_id,
@@ -337,7 +344,12 @@ async def submissions_get(request: Request):
 
     return templates.TemplateResponse(
         request=request, name="submissions.html",
-        context={"user": user, "lang": "fa", "text": TRANSLATIONS["fa"], "submissions": work_orders}
+        context={
+            "user": user, "lang": "fa", "text": TRANSLATIONS["fa"],
+            "submissions": work_orders, "page": page, "page_size": page_size,
+            "total_count": total_count, "total_pages": total_pages,
+            "start_index": (page - 1) * page_size,
+        }
     )
 
 @app.get("/submissions/download")
