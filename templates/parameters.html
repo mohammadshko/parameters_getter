@@ -41,7 +41,7 @@
           </div>
           <div id="existing-work-search-wrap" class="hidden relative">
             <label for="work-search" class="block text-xs font-semibold text-slate-600 mb-2">جستجوی پرونده کاری</label>
-            <input id="work-search" type="search" autocomplete="off" placeholder="نام پرونده، شناسه یا نام مشتری را وارد کنید..." class="block w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500">
+            <input id="work-search" type="search" autocomplete="off" placeholder="نام پرونده کاری را وارد کنید..." class="block w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500">
             <div id="work-search-results" class="hidden absolute z-20 top-full right-0 left-0 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg"></div>
             <p id="work-search-message" class="mt-2 text-xs text-slate-500">آخرین پرونده‌های کاری نمایش داده می‌شوند.</p>
             <div id="selected-work-info" class="hidden mt-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-sm"></div>
@@ -557,7 +557,7 @@
         const option = document.createElement('button');
         option.type = 'button';
         option.className = 'block w-full text-right px-4 py-3 hover:bg-indigo-50 border-b border-slate-100';
-        option.textContent = (order.work_name ? order.work_name + ' — ' : '') + order.work_id + ' — ' + order.customer_name + ' (' + order.tool_count + ' ابزار)';
+        option.textContent = order.work_name || 'بدون نام';
         option.addEventListener('click', () => {
           selectedWorkOrder = order;
           workIdInput.value = order.work_id;
@@ -565,16 +565,16 @@
           document.getElementById('customer_name').value = order.customer_name;
           document.getElementById('customer_address').value = order.customer_address;
           customerSearchInput.value = order.customer_name;
-          selectedWorkInfo.textContent = (order.work_name ? order.work_name + ' — ' : '') + 'پرونده ' + order.work_id + ' — مشتری: ' + order.customer_name + ' — تعداد ابزار ثبت‌شده: ' + order.tool_count;
+          selectedWorkInfo.textContent = order.work_name || 'بدون نام';
           selectedWorkInfo.classList.remove('hidden');
-          workSearchInput.value = order.work_id;
+          workSearchInput.value = order.work_name || '';
           workSearchResults.classList.add('hidden');
           workSearchMessage.textContent = 'پرونده انتخاب شد.';
         });
         workSearchResults.appendChild(option);
       });
       workSearchResults.classList.remove('hidden');
-      workSearchMessage.textContent = query ? 'یک پرونده را انتخاب کنید.' : 'آخرین پرونده‌ها؛ برای جستجو نام، شناسه یا مشتری را وارد کنید.';
+      workSearchMessage.textContent = query ? 'یک پرونده را انتخاب کنید.' : 'آخرین پرونده‌ها؛ برای جستجو نام پرونده را وارد کنید.';
     } catch (error) {
       if (requestId === workSearchRequest) workSearchMessage.textContent = 'خطا در جستجوی پرونده.';
     }
