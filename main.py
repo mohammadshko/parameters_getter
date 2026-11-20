@@ -221,11 +221,7 @@ def search_work_orders(request: Request, q: str = ""):
         )
         if query:
             pattern = f"%{query}%"
-            statement = statement.join(WorkOrder.customer).where(
-                WorkOrder.work_name.ilike(pattern)
-                | WorkOrder.work_id.ilike(pattern)
-                | Customer.name.ilike(pattern)
-            )
+            statement = statement.where(WorkOrder.work_name.ilike(pattern))
         orders = db.scalars(statement.limit(20)).unique().all()
         return [{
             "work_id": order.work_id,
