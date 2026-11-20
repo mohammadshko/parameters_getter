@@ -40,10 +40,10 @@
             <button type="button" id="existing-work-mode" class="p-4 rounded-xl border-2 border-slate-200 bg-white text-right font-semibold">استفاده از پرونده موجود</button>
           </div>
           <div id="existing-work-search-wrap" class="hidden relative">
-            <label for="work-search" class="block text-xs font-semibold text-slate-600 mb-2">جستجوی شناسه پرونده</label>
-            <input id="work-search" type="search" autocomplete="off" placeholder="مثلاً WK-A1B2C3D4" class="block w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500">
+            <label for="work-search" class="block text-xs font-semibold text-slate-600 mb-2">جستجوی پرونده کاری</label>
+            <input id="work-search" type="search" autocomplete="off" placeholder="نام پرونده، شناسه یا نام مشتری را وارد کنید..." class="block w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500">
             <div id="work-search-results" class="hidden absolute z-20 top-full right-0 left-0 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg"></div>
-            <p id="work-search-message" class="mt-2 text-xs text-slate-500">برای جستجو حداقل دو حرف وارد کنید.</p>
+            <p id="work-search-message" class="mt-2 text-xs text-slate-500">آخرین پرونده‌های کاری نمایش داده می‌شوند.</p>
             <div id="selected-work-info" class="hidden mt-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-sm"></div>
           </div>
           <p id="new-work-hint" class="text-xs text-slate-500">در مرحله بعد مشتری پرونده را انتخاب خواهید کرد.</p>
@@ -524,7 +524,11 @@
     setWorkMode('new');
     nextBtn.click();
   });
-  existingWorkModeBtn.addEventListener('click', () => setWorkMode('existing'));
+  existingWorkModeBtn.addEventListener('click', () => {
+    setWorkMode('existing');
+    workSearchInput.value = '';
+    workSearchInput.dispatchEvent(new Event('input'));
+  });
   const requestedWorkId = new URLSearchParams(window.location.search).get('work_id');
   if (requestedWorkId) {
     setWorkMode('existing');
@@ -533,21 +537,22 @@
   }
 
   let workSearchRequest = 0;
-  workSearchInput.addEventListener('input', async () => {
-    const query = workSearchInput.value.trim();
+  async function loadWorkOrders(query = '') {
     workSearchResults.innerHTML = '';
     workSearchResults.classList.add('hidden');
     selectedWorkOrder = null;
     workIdInput.value = '';
-    if (query.length < 2) { workSearchMessage.textContent = 'برای جستجو حداقل دو حرف وارد کنید.'; return; }
     const requestId = ++workSearchRequest;
-    workSearchMessage.textContent = 'در حال جستجو...';
+    workSearchMessage.textContent = query ? 'در حال جستجو...' : 'در حال دریافت آخرین پرونده‌ها...';
     try {
       const response = await fetch('/work-orders/search?q=' + encodeURIComponent(query));
       if (!response.ok) throw new Error('search failed');
       const orders = await response.json();
       if (requestId !== workSearchRequest) return;
-      if (!orders.length) { workSearchMessage.textContent = 'پرونده‌ای پیدا نشد.'; return; }
+      if (!orders.length) {
+        workSearchMessage.textContent = query ? 'پرونده‌ای پیدا نشد.' : 'هنوز پرونده‌ای ثبت نشده است.';
+        return;
+      }
       orders.forEach(order => {
         const option = document.createElement('button');
         option.type = 'button';
@@ -569,8 +574,14 @@
         workSearchResults.appendChild(option);
       });
       workSearchResults.classList.remove('hidden');
-      workSearchMessage.textContent = 'یک پرونده را انتخاب کنید.';
-    } catch (error) { if (requestId === workSearchRequest) workSearchMessage.textContent = 'خطا در جستجوی پرونده.'; }
+      workSearchMessage.textContent = query ? 'یک پرونده را انتخاب کنید.' : 'آخرین پرونده‌ها؛ برای جستجو نام، شناسه یا مشتری را وارد کنید.';
+    } catch (error) {
+      if (requestId === workSearchRequest) workSearchMessage.textContent = 'خطا در جستجوی پرونده.';
+    }
+  }
+
+  workSearchInput.addEventListener('input', () => {
+    loadWorkOrders(workSearchInput.value.trim());
   });
 
   // Search customers in PostgreSQL and populate the selected customer's details.
