@@ -13,7 +13,7 @@
     <div class="overflow-x-auto">
       <table class="min-w-full text-sm">
         <thead class="bg-slate-50 text-slate-500">
-          <tr><th class="px-5 py-4 text-center">ردیف</th><th class="px-5 py-4 text-right">نام پرونده</th><th class="px-5 py-4 text-right">مشتری</th><th class="px-5 py-4 text-center">تعداد ابزار</th><th class="px-5 py-4 text-right">تاریخ ایجاد</th><th class="px-5 py-4 text-center">جزئیات</th></tr>
+          <tr><th class="px-5 py-4 text-center">ردیف</th><th class="px-5 py-4 text-right">نام پرونده</th><th class="px-5 py-4 text-right">مشتری</th><th class="px-5 py-4 text-center">تعداد ابزار</th><th class="px-5 py-4 text-right">تاریخ ایجاد</th><th class="px-5 py-4 text-center">جزئیات</th><th class="px-5 py-4 text-center">حذف</th></tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
           {% for item in submissions %}
@@ -24,6 +24,11 @@
             <td class="px-5 py-4 text-center">{{ item.tool_count }}</td>
             <td class="px-5 py-4 text-slate-500">{{ item.created_at.strftime('%Y-%m-%d %H:%M') if item.created_at else '—' }}</td>
             <td class="px-5 py-4 text-center"><a href="/work-orders/{{ item.work_id }}" class="inline-flex px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100">مشاهده ابزارها</a></td>
+            <td class="px-5 py-4 text-center">
+              <form method="post" action="/work-orders/{{ item.work_id }}/delete" onsubmit="return confirm('آیا از حذف این پرونده و تمام ابزارهای ثبت‌شده در آن مطمئن هستید؟');">
+                <button type="submit" class="inline-flex px-4 py-2 rounded-lg bg-red-50 text-red-700 font-semibold hover:bg-red-100">حذف</button>
+              </form>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
