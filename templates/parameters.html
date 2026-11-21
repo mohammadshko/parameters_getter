@@ -25,7 +25,7 @@
       <p class="text-indigo-100 text-sm mt-1">{{ text.wizard_subtitle }}</p>
     </div>
 
-    <form id="wizard-form" action="/submit" method="post" class="p-8">
+    <form id="wizard-form" action="/submit" method="post" class="p-8" novalidate>
       <!-- Hidden inputs for selections -->
       <input type="hidden" name="work_id" id="work-id-input">
       <input type="hidden" name="selected_tool" id="selected-tool-input" value="{{ default_tool }}">
@@ -776,6 +776,26 @@
   });
 
   updateWizard();
+
+  // The wizard hides previous steps, so browser-native validation can block
+  // submission on required fields inside hidden panes (especially work name
+  // when adding a tool to an existing work order). Validate each step in the
+  // wizard instead, then allow the final form submission.
+  const wizardForm = document.getElementById('wizard-form');
+  wizardForm.addEventListener('submit', (event) => {
+    if (!validateCurrentStep()) {
+      event.preventDefault();
+      return;
+    }
+    if (!workIdInput.value.trim()) {
+      event.preventDefault();
+      alert('شناسه پرونده کاری مشخص نیست. لطفاً پرونده را دوباره انتخاب کنید.');
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'در حال ثبت...';
+    submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+  });
 
   // Enter key support
   document.getElementById('wizard-form').addEventListener('keydown', (e) => {
