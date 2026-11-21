@@ -12,72 +12,82 @@ from constants import TRANSLATIONS, TOOLS_CONFIG, TOOL_CATEGORIES
 from database import init_db, engine
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session, selectinload
-from models import Customer, WorkOrder, ToolConfiguration
+from models import Customer, WorkOrder, ToolConfiguration, Producer
 
 app = FastAPI(title="Beautiful FastAPI Localization & Parameter Wizard")
 
 @app.on_event("startup")
 async def startup_event():
     init_db()
+    sync_producer_catalog()
 
 
 # In-memory global store for submitted configurations
 SUBMITTED_FORMS = []
 
-# Persistent custom producer catalog. Producers are stored per tool and survive restarts.
-PRODUCERS_FILE = os.path.join(os.path.dirname(__file__), "data", "producers.json")
+# Producers are stored in PostgreSQL, scoped to their tool.
+def sync_producer_catalog():
+    legacy_path = os.path.join(os.path.dirname(__file__), "data", "producers.json")
+    catalog = {tool: list(config.get("producers", [])) for tool, config in TOOLS_CONFIG.items()}
+    try:
+        with open(legacy_path, "r", encoding="utf-8") as file:
+            legacy_catalog = json.load(file)
+        if isinstance(legacy_catalog, dict):
+            for tool, names in legacy_catalog.items():
+                if tool in catalog and isinstance(names, list):
+                    catalog[tool].extend(name for name in names if isinstance(name, str) and name.strip())
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        pass
+
+    with Session(engine) as db:
+        existing = db.scalars(select(Producer)).all()
+        known = {(item.tool_name, item.name.casefold()) for item in existing}
+        for tool_name, names in catalog.items():
+            for name in names:
+                clean_name = name.strip()
+                key = (tool_name, clean_name.casefold())
+                if clean_name and key not in known:
+                    db.add(Producer(tool_name=tool_name, name=clean_name))
+                    known.add(key)
+        db.commit()
 
 
 def load_producer_catalog():
-    catalog = {tool: list(config.get("producers", [])) for tool, config in TOOLS_CONFIG.items()}
-    try:
-        with open(PRODUCERS_FILE, "r", encoding="utf-8") as file:
-            saved_catalog = json.load(file)
-        if isinstance(saved_catalog, dict):
-            for tool, producers in saved_catalog.items():
-                if tool in catalog and isinstance(producers, list):
-                    known = {name.casefold() for name in catalog[tool]}
-                    for producer in producers:
-                        if isinstance(producer, str) and producer.strip():
-                            name = producer.strip()
-                            if name.casefold() not in known:
-                                catalog[tool].append(name)
-                                known.add(name.casefold())
-    except FileNotFoundError:
-        pass
-    except (json.JSONDecodeError, OSError):
-        pass
+    catalog = {tool: [] for tool in TOOLS_CONFIG}
+    with Session(engine) as db:
+        producers = db.scalars(select(Producer).order_by(Producer.name)).all()
+        for producer in producers:
+            catalog.setdefault(producer.tool_name, []).append(producer.name)
     return catalog
 
 
 def save_producer(tool_name: str, producer_name: str):
-    catalog = load_producer_catalog()
     if tool_name not in TOOLS_CONFIG:
         raise ValueError("ابزار نامعتبر است")
     producer_name = producer_name.strip()
     if not producer_name:
         raise ValueError("نام سازنده الزامی است")
 
-    existing = next(
-        (name for name in catalog[tool_name] if name.casefold() == producer_name.casefold()),
-        None
-    )
-    if existing:
-        return existing, catalog[tool_name]
+    with Session(engine) as db:
+        existing = db.scalar(
+            select(Producer).where(
+                Producer.tool_name == tool_name,
+                func.lower(Producer.name) == producer_name.casefold()
+            )
+        )
+        if existing:
+            saved_name = existing.name
+        else:
+            existing = Producer(tool_name=tool_name, name=producer_name)
+            db.add(existing)
+            db.commit()
+            db.refresh(existing)
+            saved_name = existing.name
 
-    catalog[tool_name].append(producer_name)
-    data_dir = os.path.dirname(PRODUCERS_FILE)
-    os.makedirs(data_dir, exist_ok=True)
-    fd, temporary_path = tempfile.mkstemp(prefix="producers_", suffix=".tmp", dir=data_dir)
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as file:
-            json.dump(catalog, file, ensure_ascii=False, indent=2)
-            file.write("\n")
-        os.replace(temporary_path, PRODUCERS_FILE)
-    finally:
-        if os.path.exists(temporary_path):
-            os.unlink(temporary_path)
-    return producer_name, catalog[tool_name]
+        names = db.scalars(
+            select(Producer.name).where(Producer.tool_name == tool_name).order_by(Producer.name)
+        ).all()
+        return saved_name, names
 
 # Session Secret Key
 app.add_middleware(SessionMiddleware, secret_key="super-secret-fastapi-key-for-persian-app")
