@@ -46,7 +46,7 @@
 document.querySelectorAll(".copy-tool-row").forEach((button) => {
   button.addEventListener("click", async () => {
     const values = JSON.parse(button.dataset.copyRow);
-    const row = values.map((value) => String(value ?? "").replace(/[\\t\\r\\n]+/g, " ")).join("\\t");
+    const row = values.map((value) => String(value ?? "").replace(/[\t\r\n]+/g, " ")).join("\t");
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(row);
