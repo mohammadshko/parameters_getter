@@ -124,9 +124,7 @@ TOOLS_CONFIG = {
             "serial_no": "PC-2025-508",
             "location": "Standards Laboratory"
         }
-    }
-}
-
+    },
     "General": {
         "description": "ابزار عمومی",
         "producers": [],
