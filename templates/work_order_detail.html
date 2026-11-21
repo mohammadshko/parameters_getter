@@ -25,7 +25,6 @@
         </div>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
-        <div><span class="text-slate-400">مدل:</span> {{ tool.model }}</div>
         <div><span class="text-slate-400">گستره:</span> {{ tool.range }}</div>
         <div><span class="text-slate-400">تفکیک‌پذیری:</span> {{ tool.resolution }}</div>
         <div><span class="text-slate-400">شماره سریال:</span> {{ tool.serial_no }}</div>
@@ -38,6 +37,10 @@
         </table>
       </div>
       </div>
+      <aside class="w-40 shrink-0 flex flex-col items-center justify-center gap-2 px-4 bg-slate-50 border-r border-slate-100 text-center">
+        <span class="text-xs text-slate-400">مدل ابزار</span>
+        <strong class="text-base font-bold text-slate-800 break-words">{{ tool.model or '—' }}</strong>
+      </aside>
       <button type="button" title="کپی اطلاعات ابزار برای اکسل" aria-label="کپی اطلاعات ابزار برای اکسل" class="copy-tool-row flex w-14 shrink-0 items-center justify-center bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border-r border-emerald-100" data-copy-row="{{ tool.excel_row | tojson | forceescape }}">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="8" y="8" width="13" height="13" rx="2"></rect>
