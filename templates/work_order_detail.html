@@ -17,10 +17,17 @@
   <div class="space-y-4">
     {% for tool in tools %}
     <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <div><span class="text-xs text-slate-400">ابزار {{ loop.index }}</span><h2 class="text-xl font-bold text-slate-800">{{ tool.selected_tool }}</h2></div>
-        <button type="button" class="copy-tool-row inline-flex px-4 py-2 rounded-lg bg-emerald-50 text-emerald-700 font-semibold hover:bg-emerald-100" data-copy-row="{{ tool.excel_row | tojson | forceescape }}">کپی برای اکسل</button>
-        <span class="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-semibold">{{ tool.producer_name }}</span>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <div><span class="text-xs text-slate-400">ابزار {{ loop.index }}</span><h2 class="text-xl font-bold text-slate-800">{{ tool.selected_tool }}</h2></div>
+          <span class="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-semibold">{{ tool.producer_name }}</span>
+        </div>
+        <button type="button" title="کپی اطلاعات ابزار برای اکسل" aria-label="کپی اطلاعات ابزار برای اکسل" class="copy-tool-row sm:mr-auto inline-flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition" data-copy-row="{{ tool.excel_row | tojson | forceescape }}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="8" y="8" width="13" height="13" rx="2"></rect>
+            <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
+          </svg>
+        </button>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
         <div><span class="text-slate-400">مدل:</span> {{ tool.model }}</div>
@@ -60,9 +67,12 @@ document.querySelectorAll(".copy-tool-row").forEach((button) => {
         document.execCommand("copy");
         textarea.remove();
       }
-      const originalText = button.textContent;
-      button.textContent = "کپی شد";
-      setTimeout(() => { button.textContent = originalText; }, 1600);
+      button.title = "کپی شد";
+      button.classList.add("bg-emerald-100");
+      setTimeout(() => {
+        button.title = "کپی اطلاعات ابزار برای اکسل";
+        button.classList.remove("bg-emerald-100");
+      }, 1600);
     } catch (error) {
       alert("کپی انجام نشد. لطفاً مجوز دسترسی به کلیپ‌بورد را بررسی کنید.");
     }
