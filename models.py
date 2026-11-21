@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, String, Text, ForeignKey, DateTime, JSON, func
+from sqlalchemy import BigInteger, String, Text, ForeignKey, DateTime, JSON, func, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
@@ -47,3 +47,13 @@ class ToolConfiguration(Base):
     created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     work_order: Mapped["WorkOrder"] = relationship(back_populates="tools")
+
+
+class Producer(Base):
+    __tablename__ = "producers"
+    __table_args__ = (UniqueConstraint("tool_name", "name", name="uq_producer_tool_name_name"),)
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tool_name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
