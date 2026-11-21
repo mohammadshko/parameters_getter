@@ -296,16 +296,46 @@ def work_order_detail(request: Request, work_id: str):
         )
         if order is None:
             return RedirectResponse(url="/submissions", status_code=status.HTTP_303_SEE_OTHER)
-        tools = [{
-            "id": tool.id, "selected_tool": tool.selected_tool, "producer_name": tool.producer_name,
-            "model": tool.model, "range": tool.tool_range, "resolution": tool.resolution,
-            "serial_no": tool.serial_no, "tool_location": tool.tool_location,
-            "calibration_points": tool.calibration_points or [],
-        } for tool in order.tools]
+        customer = order.customer
+        tools = []
+        for tool in order.tools:
+            calibration_points = tool.calibration_points or []
+            excel_row = [
+                customer.name or "",
+                customer.description or "",
+                customer.national_id or "",
+                customer.postal_id or "",
+                customer.address or "",
+                customer.phone_number or "",
+                tool.selected_tool or "",
+                tool.producer_name or "",
+                tool.model or "",
+                tool.tool_range or "",
+                tool.resolution or "",
+                tool.serial_no or "",
+                tool.tool_location or "",
+            ]
+            # Keep a fixed 6-point layout so every copied tool has the same Excel columns.
+            for index in range(6):
+                point = calibration_points[index] if index < len(calibration_points) else {}
+                excel_row.extend([
+                    point.get("uuc", ""),
+                    point.get("ref_rising", ""),
+                    point.get("ref_falling", ""),
+                ])
+            tools.append({
+                "id": tool.id, "selected_tool": tool.selected_tool, "producer_name": tool.producer_name,
+                "model": tool.model, "range": tool.tool_range, "resolution": tool.resolution,
+                "serial_no": tool.serial_no, "tool_location": tool.tool_location,
+                "calibration_points": calibration_points,
+                "excel_row": excel_row,
+            })
         context = {
             "user": user, "lang": "fa", "text": TRANSLATIONS["fa"],
-            "work_order": {"work_id": order.work_id, "work_name": order.work_name or "", "customer_name": order.customer.name,
-                           "customer_address": order.customer.address or ""},
+            "work_order": {
+                "work_id": order.work_id, "work_name": order.work_name or "",
+                "customer_name": customer.name, "customer_address": customer.address or "",
+            },
             "tools": tools,
         }
     return templates.TemplateResponse(request=request, name="work_order_detail.html", context=context)
