@@ -20,7 +20,7 @@
       <div class="flex-1 min-w-0 p-6">
       <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <div class="flex flex-col items-start gap-2">
-          <div><span class="text-xs text-slate-400">ابزار {{ loop.index }}</span><h2 class="text-xl font-bold text-slate-800">{{ tool.selected_tool }}</h2></div>
+          <div><span class="text-xs text-slate-400">ابزار {{ loop.index }}</span><h2 class="text-xl font-bold text-slate-800">{{ "عمومی" if tool.selected_tool == "General" else tool.selected_tool }}</h2></div>
           <span dir="ltr" class="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-semibold">{{ tool.producer_name }}</span>
         </div>
       </div>
