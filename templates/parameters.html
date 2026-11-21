@@ -100,7 +100,7 @@
             {% for category_name, category_tools in tool_categories.items() %}
             <button type="button" class="category-card-btn text-left rtl:text-right p-5 rounded-xl border-2 border-slate-100 bg-slate-50/50 hover:bg-slate-50 hover:border-indigo-400 transition-all font-semibold" data-category="{{ category_name }}">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-bold text-slate-800">{% if category_name == 'Pressure' %}{{ text.category_pressure }}{% else %}{{ category_name }}{% endif %}</span>
+                <span class="text-sm font-bold text-slate-800">{% if category_name == 'Pressure' %}{{ text.category_pressure }}{% elif category_name == 'General' %}{{ text.category_general }}{% else %}{{ category_name }}{% endif %}</span>
                 <span class="category-select-dot h-4 w-4 rounded-full border border-slate-300 bg-white flex items-center justify-center"><span class="h-2 w-2 rounded-full bg-indigo-600 hidden"></span></span>
               </div>
               <p class="text-xs font-normal text-slate-500 mt-2">{{ category_tools | length }} ابزار</p>
@@ -325,7 +325,7 @@
     const toolNames = toolCategories[categoryName] || [];
     toolOptionsList.innerHTML = '';
     if (selectedCategoryDescription) {
-      selectedCategoryDescription.textContent = categoryName;
+      selectedCategoryDescription.textContent = categoryName === 'General' ? 'عمومی' : categoryName;
     }
 
     toolNames.forEach((toolName) => {
@@ -340,7 +340,7 @@
       header.className = 'flex items-center justify-between mb-2';
       const title = document.createElement('span');
       title.className = 'text-sm font-bold text-slate-800';
-      title.textContent = toolName;
+      title.textContent = toolName === 'General' ? 'عمومی' : toolName;
       const dot = document.createElement('span');
       dot.className = 'tool-select-dot h-4 w-4 rounded-full border border-slate-300 bg-white flex items-center justify-center';
       const dotInner = document.createElement('span');
@@ -417,7 +417,7 @@
     }
 
     if (specsToolBadge) {
-      specsToolBadge.textContent = activeToolName;
+      specsToolBadge.textContent = activeToolName === 'General' ? 'عمومی' : activeToolName;
     }
   }
 
