@@ -553,6 +553,27 @@
         workSearchMessage.textContent = query ? 'پرونده‌ای پیدا نشد.' : 'هنوز پرونده‌ای ثبت نشده است.';
         return;
       }
+
+      // When arriving from "add another tool", resolve the work ID automatically
+      // and jump directly to the category-selection step.
+      if (requestedWorkId && query === requestedWorkId) {
+        const matchingOrder = orders.find(order => String(order.work_id) === String(requestedWorkId));
+        if (matchingOrder) {
+          selectedWorkOrder = matchingOrder;
+          workIdInput.value = matchingOrder.work_id;
+          document.getElementById('customer_id').value = matchingOrder.customer_id;
+          document.getElementById('customer_name').value = matchingOrder.customer_name;
+          document.getElementById('customer_address').value = matchingOrder.customer_address;
+          customerSearchInput.value = matchingOrder.customer_name;
+          selectedWorkInfo.textContent = matchingOrder.work_name || 'بدون نام';
+          selectedWorkInfo.classList.remove('hidden');
+          workSearchResults.classList.add('hidden');
+          currentStep = 2;
+          updateWizard();
+          return;
+        }
+      }
+
       orders.forEach(order => {
         const option = document.createElement('button');
         option.type = 'button';
