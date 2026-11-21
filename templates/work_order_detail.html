@@ -16,18 +16,13 @@
   </div>
   <div class="space-y-4">
     {% for tool in tools %}
-    <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+    <section class="flex items-stretch bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="flex-1 min-w-0 p-6">
       <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <div class="flex items-center gap-3">
           <div><span class="text-xs text-slate-400">ابزار {{ loop.index }}</span><h2 class="text-xl font-bold text-slate-800">{{ tool.selected_tool }}</h2></div>
           <span class="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-semibold">{{ tool.producer_name }}</span>
         </div>
-        <button type="button" title="کپی اطلاعات ابزار برای اکسل" aria-label="کپی اطلاعات ابزار برای اکسل" class="copy-tool-row sm:mr-auto inline-flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition" data-copy-row="{{ tool.excel_row | tojson | forceescape }}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="8" y="8" width="13" height="13" rx="2"></rect>
-            <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
-          </svg>
-        </button>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
         <div><span class="text-slate-400">مدل:</span> {{ tool.model }}</div>
@@ -42,6 +37,13 @@
           <tbody>{% for point in tool.calibration_points %}<tr class="border-t border-slate-100"><td class="p-2">{{ point.uuc }}</td><td class="p-2">{{ point.ref_rising }}</td><td class="p-2">{{ point.ref_falling }}</td></tr>{% endfor %}</tbody>
         </table>
       </div>
+      </div>
+      <button type="button" title="کپی اطلاعات ابزار برای اکسل" aria-label="کپی اطلاعات ابزار برای اکسل" class="copy-tool-row flex w-14 shrink-0 items-center justify-center bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border-r border-emerald-100" data-copy-row="{{ tool.excel_row | tojson | forceescape }}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="8" y="8" width="13" height="13" rx="2"></rect>
+          <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
+        </svg>
+      </button>
     </section>
     {% else %}
     <div class="p-10 text-center bg-white rounded-2xl border border-slate-100">هنوز ابزاری به این پرونده اضافه نشده است.</div>
