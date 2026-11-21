@@ -34,6 +34,7 @@ TRANSLATIONS = {
         "select_category_title": "انتخاب کمیت",
         "select_category_desc": "برای مشاهده ابزارهای موجود، یک دسته‌بندی انتخاب کنید.",
         "category_pressure": "فشار",
+        "category_general": "عمومی",
         "select_tool_title": "انتخاب ابزار",
         "select_tool_desc": "ابزار مورد نظر برای کالیبراسیون را از فهرست زیر انتخاب کنید.",
         "search_tool_placeholder": "جستجوی ابزارها (مانند گیج فشار، مانومتر...)",
@@ -126,6 +127,19 @@ TOOLS_CONFIG = {
     }
 }
 
+    "General": {
+        "description": "ابزار عمومی",
+        "producers": [],
+        "default_specs": {
+            "model": "",
+            "range": "",
+            "resolution": "",
+            "serial_no": "",
+            "location": ""
+        }
+    }
+}
+
 
 # Main categories and the tools available under each category.
 # Add new categories here as the tool catalog grows.
@@ -135,5 +149,8 @@ TOOL_CATEGORIES = {
         "Digital Manometer",
         "Pressure Transmitter",
         "Pressure Calibrator",
+    ],
+    "General": [
+        "General",
     ]
 }
