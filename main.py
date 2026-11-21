@@ -326,7 +326,7 @@ def work_order_detail(request: Request, work_id: str):
                     point.get("ref_falling", ""),
                 ])
             tools.append({
-                "id": tool.id, "selected_tool": tool.selected_tool, "producer_name": tool.producer_name,
+                "id": tool.id, "selected_tool": "عمومی" if tool.selected_tool == "General" else tool.selected_tool, "producer_name": tool.producer_name,
                 "model": tool.model, "range": tool.tool_range, "resolution": tool.resolution,
                 "serial_no": tool.serial_no, "tool_location": tool.tool_location,
                 "calibration_points": calibration_points,
