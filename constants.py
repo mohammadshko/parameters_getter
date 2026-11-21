@@ -31,7 +31,7 @@ TRANSLATIONS = {
         "sign_out": "خروج از سیستم",
         "error_login": "نام کاربری یا رمز عبور نامعتبر است. لطفا admin/admin را امتحان کنید.",
         # Tool Selection
-        "select_category_title": "انتخاب دسته‌بندی اصلی",
+        "select_category_title": "انتخاب کمیت",
         "select_category_desc": "برای مشاهده ابزارهای موجود، یک دسته‌بندی انتخاب کنید.",
         "category_pressure": "فشار",
         "select_tool_title": "انتخاب ابزار",
